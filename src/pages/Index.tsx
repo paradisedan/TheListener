@@ -72,7 +72,7 @@ const Index = () => {
     setListenerState('submitting');
     setTimeout(() => {
       setListenerState('idle');
-    }, 600);
+    }, 1400);
   };
 
   // Add new comments periodically

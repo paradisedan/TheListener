@@ -38,9 +38,9 @@ export function TheListener({ state, waveformAmplitude = 0 }: TheListenerProps) 
             }
           : state === 'submitting'
           ? {
-              opacity: [baseOpacity, 0.5, baseOpacity],
-              scale: [1, 1.08, 1],
-              filter: ['blur(22px)', 'blur(35px)', 'blur(22px)'],
+              opacity: [baseOpacity, 0.7, 0.6, baseOpacity],
+              scale: [1, 1.12, 1.1, 1],
+              filter: ['blur(22px)', 'blur(12px)', 'blur(15px)', 'blur(22px)'],
             }
           : state === 'rebirth'
           ? {
@@ -52,7 +52,7 @@ export function TheListener({ state, waveformAmplitude = 0 }: TheListenerProps) 
       }
       transition={
         state === 'submitting'
-          ? { duration: 0.6, ease: 'easeInOut' }
+          ? { duration: 1.4, ease: 'easeInOut', times: [0, 0.3, 0.6, 1] }
           : state === 'rebirth'
           ? { duration: 4, ease: 'easeInOut', times: [0, 0.2, 0.6, 1] }
           : { duration: 10, ease: 'easeInOut', repeat: Infinity }
