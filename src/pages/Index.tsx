@@ -25,8 +25,21 @@ const Index = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [keystrokePulse, setKeystrokePulse] = useState(0);
   const [listenerState, setListenerState] = useState<'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant'>('idle');
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const countdown = useCountdown();
   const currentVersion = mockVersions.length;
+
+  // Track mouse position for parallax
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2; // -1 to 1
+      const y = (e.clientY / window.innerHeight - 0.5) * 2; // -1 to 1
+      setMousePosition({ x, y });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   // Handle idle state and listener state
   useEffect(() => {
@@ -92,6 +105,22 @@ const Index = () => {
     setTimeout(() => setKeystrokePulse(0), 500);
   };
 
+  // Calculate parallax offsets for different layers
+  const waveformParallax = {
+    x: mousePosition.x * 8,
+    y: mousePosition.y * 8,
+  };
+
+  const listenerParallax = {
+    x: mousePosition.x * 15,
+    y: mousePosition.y * 15,
+  };
+
+  const textParallax = {
+    x: mousePosition.x * 25,
+    y: mousePosition.y * 25,
+  };
+
   // Add new comments periodically
   useEffect(() => {
     const interval = setInterval(() => {
@@ -132,8 +161,14 @@ const Index = () => {
         className="fixed inset-0 flex items-center justify-center pointer-events-none"
         animate={{
           opacity: isIdle ? 0.1 : 0.05,
+          x: waveformParallax.x,
+          y: waveformParallax.y,
         }}
-        transition={{ duration: 3 }}
+        transition={{ 
+          duration: 3,
+          x: { duration: 0.8, ease: 'easeOut' },
+          y: { duration: 0.8, ease: 'easeOut' },
+        }}
       >
         <div className="flex gap-1 items-end">
           {[...Array(40)].map((_, i) => (
@@ -155,19 +190,33 @@ const Index = () => {
       </motion.div>
 
       {/* The Listener - living presence */}
-      <TheListener 
-        state={listenerState} 
-        waveformAmplitude={0.3}
-        keystrokePulse={keystrokePulse}
-      />
+      <motion.div
+        animate={{
+          x: listenerParallax.x,
+          y: listenerParallax.y,
+        }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+      >
+        <TheListener 
+          state={listenerState} 
+          waveformAmplitude={0.3}
+          keystrokePulse={keystrokePulse}
+        />
+      </motion.div>
 
       <PlayerBar version={currentVersion} countdown={countdown} />
       
       <motion.div
         animate={{
           opacity: isIdle ? 0.7 : 1,
+          x: textParallax.x,
+          y: textParallax.y,
         }}
-        transition={{ duration: 2 }}
+        transition={{ 
+          duration: 2,
+          x: { duration: 0.5, ease: 'easeOut' },
+          y: { duration: 0.5, ease: 'easeOut' },
+        }}
       >
         <PromptSection 
           onTyping={setIsTyping}
@@ -178,7 +227,15 @@ const Index = () => {
         />
       </motion.div>
 
-      <AIDirectionPanel />
+      <motion.div
+        animate={{
+          x: textParallax.x * 0.8,
+          y: textParallax.y * 0.8,
+        }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+      >
+        <AIDirectionPanel />
+      </motion.div>
       
       <DriftingContributors users={mockUsers} comments={comments} />
       
