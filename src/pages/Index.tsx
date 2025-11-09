@@ -7,6 +7,7 @@ import { DriftingContributors } from '@/components/DriftingContributors';
 import { MixHistory } from '@/components/MixHistory';
 import { VersionDrawer } from '@/components/VersionDrawer';
 import { TheListener } from '@/components/TheListener';
+import { Colophon } from '@/components/Colophon';
 import { useCountdown } from '@/hooks/useCountdown';
 import {
   mockUsers,
@@ -192,6 +193,8 @@ const Index = () => {
         isOpen={selectedVersion !== null}
         onClose={() => setSelectedVersion(null)}
       />
+
+      <Colophon />
     </div>
   );
 };
