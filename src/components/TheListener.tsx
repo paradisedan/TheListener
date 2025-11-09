@@ -107,15 +107,26 @@ export function TheListener({ state, waveformAmplitudes = [], keystrokePulse = 0
           strokeWidth="4"
           fill="none"
           strokeLinecap="round"
-          animate={{
-            d: [
-              "M 200 400 Q 150 200 180 50 Q 190 20 200 50 Q 220 180 220 350",
-              `M 200 400 Q ${150 + earTilt} 200 ${180 + earTilt} ${50 + earFlicker * 20} Q ${190 + earTilt} 20 200 50 Q 220 180 220 350`,
-              "M 200 400 Q 150 200 180 50 Q 190 20 200 50 Q 220 180 220 350",
-            ],
-            opacity: [0.4 + whisperGlowActive, 0.6 + whisperGlowActive, 0.4 + whisperGlowActive],
-          }}
-          transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity }}
+          animate={
+            whisperGlowActive > 0
+              ? {
+                  d: `M 200 400 Q ${150 + earTilt} 200 ${180 + earTilt} ${50 + earFlicker * 20} Q ${190 + earTilt} 20 200 50 Q 220 180 220 350`,
+                  opacity: 0.7,
+                }
+              : {
+                  d: [
+                    "M 200 400 Q 150 200 180 50 Q 190 20 200 50 Q 220 180 220 350",
+                    `M 200 400 Q ${150 + earTilt} 200 ${180 + earTilt} ${50 + earFlicker * 20} Q ${190 + earTilt} 20 200 50 Q 220 180 220 350`,
+                    "M 200 400 Q 150 200 180 50 Q 190 20 200 50 Q 220 180 220 350",
+                  ],
+                  opacity: [0.4, 0.6, 0.4],
+                }
+          }
+          transition={
+            whisperGlowActive > 0
+              ? { duration: 0.15, ease: 'easeOut' }
+              : { duration: 2, ease: 'easeInOut', repeat: Infinity }
+          }
         />
 
         {/* Right ear - waveform reactive */}
@@ -125,15 +136,26 @@ export function TheListener({ state, waveformAmplitudes = [], keystrokePulse = 0
           strokeWidth="4"
           fill="none"
           strokeLinecap="round"
-          animate={{
-            d: [
-              "M 400 400 Q 450 200 420 50 Q 410 20 400 50 Q 380 180 380 350",
-              `M 400 400 Q ${450 - earTilt} 200 ${420 - earTilt} ${50 + earFlicker * 20} Q ${410 - earTilt} 20 400 50 Q 380 180 380 350`,
-              "M 400 400 Q 450 200 420 50 Q 410 20 400 50 Q 380 180 380 350",
-            ],
-            opacity: [0.4 + whisperGlowActive, 0.6 + whisperGlowActive, 0.4 + whisperGlowActive],
-          }}
-          transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity }}
+          animate={
+            whisperGlowActive > 0
+              ? {
+                  d: `M 400 400 Q ${450 - earTilt} 200 ${420 - earTilt} ${50 + earFlicker * 20} Q ${410 - earTilt} 20 400 50 Q 380 180 380 350`,
+                  opacity: 0.7,
+                }
+              : {
+                  d: [
+                    "M 400 400 Q 450 200 420 50 Q 410 20 400 50 Q 380 180 380 350",
+                    `M 400 400 Q ${450 - earTilt} 200 ${420 - earTilt} ${50 + earFlicker * 20} Q ${410 - earTilt} 20 400 50 Q 380 180 380 350`,
+                    "M 400 400 Q 450 200 420 50 Q 410 20 400 50 Q 380 180 380 350",
+                  ],
+                  opacity: [0.4, 0.6, 0.4],
+                }
+          }
+          transition={
+            whisperGlowActive > 0
+              ? { duration: 0.15, ease: 'easeOut' }
+              : { duration: 2, ease: 'easeInOut', repeat: Infinity }
+          }
         />
 
         {/* Head outline */}

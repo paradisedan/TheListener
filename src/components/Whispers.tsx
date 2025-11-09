@@ -82,9 +82,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
       const cms = countdownMsRef.current;
       const idle = isIdleRef.current;
       
-      if (cms < 1800000) return 1500; // <30min: 1.5s
-      if (idle) return 6000; // Idle: 6s
-      return 2500; // Normal: 2.5s
+      if (cms < 1800000) return 3000; // <30min: 3s (more chill)
+      if (idle) return 12000; // Idle: 12s (very sparse)
+      return 6000; // Normal: 6s (ambient)
     };
 
     const generateWhisper = () => {
