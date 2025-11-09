@@ -153,7 +153,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
         y,
         opacity: Math.max(0.25, Math.min(0.5, opacity)),
         drift: 15 + Math.random() * 10,
-        duration: 10 + Math.random() * 5,
+        duration: 12 + Math.random() * 2,
       };
 
       if (DEBUG) console.log('[Whispers] Adding:', newWhisper.id, newWhisper.text);
