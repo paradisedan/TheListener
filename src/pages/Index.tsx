@@ -41,11 +41,14 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Ambient background gradient */}
+      <div className="fixed inset-0 gradient-ambient pointer-events-none" />
+      
       <PlayerBar version={currentVersion} countdown={countdown} />
       
-      <div className="container mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="container mx-auto px-6 py-16 relative">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
           {/* Main Content */}
           <div className="lg:col-span-2">
             <PromptSection />
@@ -53,7 +56,7 @@ const Index = () => {
           </div>
           
           {/* Sidebar */}
-          <div className="space-y-4">
+          <div className="space-y-8">
             <CommentStream comments={comments} onNewComment={handleNewComment} />
             <TopContributors users={mockUsers} />
           </div>

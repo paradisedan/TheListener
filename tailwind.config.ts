@@ -64,7 +64,8 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ['Space Grotesk', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        serif: ['Crimson Pro', 'serif'],
       },
       keyframes: {
         "accordion-down": {
@@ -87,27 +88,43 @@ export default {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
         },
-        "pulse-glow": {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.6" },
+        "pulse-heartbeat": {
+          "0%, 100%": { opacity: "0.3" },
+          "50%": { opacity: "0.5" },
         },
-        "slide-in-right": {
+        "drift-up": {
           from: {
             opacity: "0",
-            transform: "translateX(20px)",
+            transform: "translateY(10px)",
           },
           to: {
             opacity: "1",
-            transform: "translateX(0)",
+            transform: "translateY(0)",
+          },
+        },
+        "digit-drift": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-2px)" },
+        },
+        "float-up": {
+          from: {
+            opacity: "0",
+            transform: "translateY(20px)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0)",
           },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "gradient-shift": "gradient-shift 6s ease infinite",
-        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
-        "slide-in-right": "slide-in-right 0.4s ease-out",
+        "gradient-shift": "gradient-shift 20s ease infinite",
+        "pulse-heartbeat": "pulse-heartbeat 4s ease-in-out infinite",
+        "drift-up": "drift-up 0.8s ease-out",
+        "digit-drift": "digit-drift 3s ease-in-out infinite",
+        "float-up": "float-up 1s ease-out",
       },
     },
   },

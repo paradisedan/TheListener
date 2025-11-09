@@ -11,53 +11,50 @@ export function PlayerBar({ version, countdown }: PlayerBarProps) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   return (
-    <div className="sticky top-0 z-50 border-b border-border/50 backdrop-blur-lg">
-      <div className="gradient-glow h-2" />
-      <div className="bg-card/90 px-6 py-4">
+    <div className="sticky top-0 z-50">
+      <div className="absolute inset-0 gradient-ambient heartbeat-line pointer-events-none" />
+      <div className="relative bg-background/80 backdrop-blur-sm px-6 py-8">
         <div className="container mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-8">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsPlaying(!isPlaying)}
-              className="h-12 w-12 rounded-full glow-effect"
+              className="h-10 w-10 rounded-none border-0 hover:bg-transparent transition-opacity hover:opacity-70"
             >
               {isPlaying ? (
-                <Pause className="h-6 w-6" />
+                <Pause className="h-5 w-5" />
               ) : (
-                <Play className="h-6 w-6 ml-0.5" />
+                <Play className="h-5 w-5" />
               )}
             </Button>
             
-            <div className="flex items-center gap-3">
-              <div className="flex gap-1">
-                {[...Array(12)].map((_, i) => (
+            <div className="flex items-center gap-6">
+              <div className="flex gap-0.5 h-8 items-end">
+                {[...Array(16)].map((_, i) => (
                   <div
                     key={i}
-                    className={`w-1 bg-primary rounded-full transition-all ${
-                      isPlaying ? 'animate-pulse-glow' : ''
+                    className={`w-px bg-foreground/20 transition-all duration-1000 ${
+                      isPlaying ? 'opacity-100' : 'opacity-30'
                     }`}
                     style={{
-                      height: `${Math.random() * 24 + 8}px`,
-                      animationDelay: `${i * 0.1}s`,
+                      height: `${Math.random() * 100}%`,
+                      transitionDelay: `${i * 0.05}s`,
                     }}
                   />
                 ))}
               </div>
               <div>
-                <h2 className="text-sm font-semibold">Current Mix</h2>
-                <p className="text-xs text-muted-foreground">Version {version}</p>
+                <p className="text-xs tracking-wider uppercase opacity-40 font-sans">Current Mix</p>
+                <p className="text-sm font-light mt-0.5">Version {version}</p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-8">
             <div className="text-right">
-              <p className="text-xs text-muted-foreground">Next remix in</p>
-              <p className="text-lg font-bold text-primary">{countdown}</p>
-            </div>
-            <div className="px-4 py-2 rounded-lg bg-muted/50 border border-border">
-              <p className="text-xs text-muted-foreground">v{version}</p>
+              <p className="text-xs tracking-wider uppercase opacity-40 font-sans">Next evolution</p>
+              <p className="text-2xl font-serif font-light mt-1 animate-digit-drift">{countdown}</p>
             </div>
           </div>
         </div>

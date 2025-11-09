@@ -15,17 +15,17 @@ export function PromptSection() {
   };
 
   return (
-    <div className="mb-8">
-      <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+    <div className="mb-16 mt-8">
+      <h2 className="text-4xl md:text-5xl font-serif font-light mb-12 text-center tracking-tight leading-tight">
         What should the song do next?
       </h2>
       
-      <div className="relative">
+      <div className="relative max-w-2xl mx-auto">
         <Textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Add more bass, change the tempo, add vocals, make it dreamier..."
-          className="min-h-[120px] pr-14 resize-none bg-card border-border focus:border-primary transition-all glow-effect text-base"
+          placeholder="Introduce a subtle bassline... shift to minor key... add layered vocals..."
+          className="min-h-[140px] pr-14 resize-none bg-transparent border-0 border-b border-border/30 focus:border-foreground/30 transition-all text-base font-light leading-relaxed placeholder:text-muted-foreground/30 rounded-none px-0"
           onKeyDown={(e) => {
             if (e.key === 'Enter' && e.ctrlKey) {
               handleSubmit();
@@ -36,14 +36,14 @@ export function PromptSection() {
           onClick={handleSubmit}
           disabled={!prompt.trim()}
           size="icon"
-          className="absolute bottom-3 right-3 rounded-full glow-effect"
+          className="absolute bottom-3 right-0 rounded-none border-0 bg-transparent hover:bg-transparent transition-opacity hover:opacity-60 disabled:opacity-20"
         >
           <Send className="h-4 w-4" />
         </Button>
       </div>
       
-      <p className="text-xs text-muted-foreground text-center mt-2">
-        Press <kbd className="px-2 py-0.5 rounded bg-muted">Ctrl</kbd> + <kbd className="px-2 py-0.5 rounded bg-muted">Enter</kbd> to submit
+      <p className="text-xs text-muted-foreground/40 text-center mt-6 font-sans tracking-wider uppercase">
+        Ctrl + Enter to contribute
       </p>
     </div>
   );

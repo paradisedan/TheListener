@@ -25,32 +25,32 @@ export function CommentStream({ comments, onNewComment }: CommentStreamProps) {
   };
 
   return (
-    <Card className="p-4 bg-card border-border/50 h-[500px] flex flex-col">
-      <h3 className="text-lg font-semibold mb-3 flex items-center justify-between">
+    <div className="p-0 bg-transparent h-[500px] flex flex-col">
+      <h3 className="text-xs tracking-widest uppercase opacity-30 mb-6 font-sans flex items-center justify-between">
         Live Feed
-        <span className="w-2 h-2 rounded-full bg-primary animate-pulse-glow" />
+        <span className="w-1 h-1 bg-foreground/30 heartbeat-line" />
       </h3>
       
       <ScrollArea className="flex-1">
-        <div className="space-y-3 pr-4">
+        <div className="space-y-6 pr-4">
           {displayComments.map((comment, index) => (
             <div
               key={comment.id}
-              className="p-3 rounded-lg bg-muted/30 border border-border/30 hover:border-primary/30 transition-all slide-in"
-              style={{ animationDelay: `${index * 0.05}s` }}
+              className="float-up opacity-0 [animation-fill-mode:forwards]"
+              style={{ animationDelay: `${index * 0.08}s` }}
             >
-              <div className="flex items-start gap-2 mb-1">
-                <span className="text-xl">{comment.user.avatar}</span>
+              <div className="flex items-start gap-3 mb-2">
+                <span className="text-base opacity-50">{comment.user.avatar}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{comment.user.username}</p>
-                  <p className="text-xs text-muted-foreground">{formatTimestamp(comment.timestamp)}</p>
+                  <p className="text-xs font-light opacity-50 truncate">{comment.user.username}</p>
+                  <p className="text-xs opacity-30 font-sans mt-0.5">{formatTimestamp(comment.timestamp)}</p>
                 </div>
               </div>
-              <p className="text-sm mt-1 ml-7">{comment.message}</p>
+              <p className="text-sm font-light leading-relaxed opacity-70 ml-7">{comment.message}</p>
             </div>
           ))}
         </div>
       </ScrollArea>
-    </Card>
+    </div>
   );
 }

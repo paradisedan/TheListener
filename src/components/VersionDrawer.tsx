@@ -1,6 +1,5 @@
-import { X, Clock, ChevronRight } from 'lucide-react';
+import { X, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Version } from '@/data/mockData';
 
 interface VersionDrawerProps {
@@ -25,41 +24,41 @@ export function VersionDrawer({ version, isOpen, onClose }: VersionDrawerProps) 
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
+        className="fixed inset-0 bg-background/95 backdrop-blur-md z-50 transition-opacity"
         onClick={onClose}
       />
       
       {/* Drawer */}
-      <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-card border-l border-border z-50 animate-slide-in-right">
+      <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-background border-l border-border/20 z-50 drift-up">
         <div className="h-full flex flex-col">
-          <div className="p-6 border-b border-border flex items-center justify-between">
+          <div className="p-8 border-b border-border/10 flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold">Version {version.number}</h2>
-              <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+              <h2 className="text-2xl font-serif font-light">Version {version.number}</h2>
+              <p className="text-xs opacity-30 font-sans mt-2 tracking-wider uppercase flex items-center gap-2">
                 <Clock className="h-3 w-3" />
                 {formatDate(version.timestamp)}
               </p>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-5 w-5" />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onClose}
+              className="rounded-none border-0 hover:bg-transparent hover:opacity-60"
+            >
+              <X className="h-4 w-4" />
             </Button>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-6">
-            <h3 className="text-lg font-semibold mb-4">What Changed</h3>
-            <div className="space-y-3">
+          <div className="flex-1 overflow-y-auto p-8">
+            <h3 className="text-xs tracking-widest uppercase opacity-30 mb-6 font-sans">Changes</h3>
+            <div className="space-y-4">
               {version.changes.map((change, index) => (
-                <Card
+                <div
                   key={index}
-                  className="p-4 bg-muted/30 border-border/50 hover:border-primary/30 transition-all"
+                  className="py-3 border-b border-border/10 last:border-0"
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5 p-1 rounded bg-primary/20">
-                      <ChevronRight className="h-4 w-4 text-primary" />
-                    </div>
-                    <p className="text-sm flex-1">{change}</p>
-                  </div>
-                </Card>
+                  <p className="text-sm font-light leading-relaxed opacity-70">{change}</p>
+                </div>
               ))}
             </div>
           </div>
