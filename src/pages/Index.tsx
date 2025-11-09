@@ -26,6 +26,7 @@ const Index = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [keystrokePulse, setKeystrokePulse] = useState(0);
   const [listenerState, setListenerState] = useState<'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant'>('idle');
+  const [waveformAmplitudes, setWaveformAmplitudes] = useState<number[]>(Array(40).fill(0.5));
   const countdown = useCountdown();
   const currentVersion = mockVersions.length;
 
@@ -93,6 +94,21 @@ const Index = () => {
     setTimeout(() => setKeystrokePulse(0), 500);
   };
 
+  // Update waveform amplitudes
+  useEffect(() => {
+    let animationFrame: number;
+    
+    const updateAmplitudes = () => {
+      setWaveformAmplitudes(prev => 
+        prev.map(() => Math.random() * 0.6 + 0.2)
+      );
+      animationFrame = requestAnimationFrame(updateAmplitudes);
+    };
+    
+    animationFrame = requestAnimationFrame(updateAmplitudes);
+    return () => cancelAnimationFrame(animationFrame);
+  }, []);
+
   // Add new comments periodically
   useEffect(() => {
     const interval = setInterval(() => {
@@ -121,7 +137,8 @@ const Index = () => {
       
       {/* Central glow */}
       <motion.div 
-        className="fixed inset-0 glow-center breath pointer-events-none"
+        className="fixed inset-0 glow-center breath pointer-events-none blend-screen"
+        style={{ zIndex: 5 }}
         animate={{
           opacity: isIdle ? 0.8 : 0.4,
         }}
@@ -130,25 +147,24 @@ const Index = () => {
       
       {/* Ambient waveform visualization */}
       <motion.div 
-        className="fixed inset-0 flex items-center justify-center pointer-events-none"
+        className="fixed inset-0 flex items-center justify-center pointer-events-none blend-screen"
+        style={{ zIndex: 10 }}
         animate={{
           opacity: isIdle ? 0.1 : 0.05,
         }}
         transition={{ duration: 3 }}
       >
         <div className="flex gap-1 items-end">
-          {[...Array(40)].map((_, i) => (
+          {waveformAmplitudes.map((amplitude, i) => (
             <motion.div
               key={i}
               className="w-1 bg-primary/30 rounded-full"
               animate={{
-                height: [`${Math.random() * 40 + 20}px`, `${Math.random() * 60 + 30}px`, `${Math.random() * 40 + 20}px`],
+                height: `${amplitude * 60 + 20}px`,
               }}
               transition={{
-                duration: Math.random() * 2 + 2,
-                repeat: Infinity,
-                ease: 'easeInOut',
-                delay: i * 0.05,
+                duration: 0.2,
+                ease: 'easeOut',
               }}
             />
           ))}
@@ -156,15 +172,18 @@ const Index = () => {
       </motion.div>
 
       {/* The Listener - living presence */}
-      <TheListener 
-        state={listenerState} 
-        waveformAmplitude={0.3}
-        keystrokePulse={keystrokePulse}
-      />
+      <div className="fixed inset-0 pointer-events-none blend-lighten" style={{ zIndex: 20 }}>
+        <TheListener 
+          state={listenerState} 
+          waveformAmplitudes={waveformAmplitudes}
+          keystrokePulse={keystrokePulse}
+        />
+      </div>
 
       <PlayerBar version={currentVersion} countdown={countdown} />
       
       <motion.div
+        style={{ zIndex: 40 }}
         animate={{
           opacity: isIdle ? 0.7 : 1,
         }}
@@ -179,7 +198,9 @@ const Index = () => {
         />
       </motion.div>
 
-      <AIDirectionPanel />
+      <div style={{ zIndex: 40 }}>
+        <AIDirectionPanel />
+      </div>
       
       <DriftingContributors users={mockUsers} comments={comments} />
       

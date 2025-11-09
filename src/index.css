@@ -38,7 +38,7 @@ All colors MUST be HSL.
 
     --radius: 0rem;
     
-    --glow-center: radial-gradient(ellipse at center, hsl(168 95% 82% / 0.08) 0%, transparent 70%);
+    --glow-center: radial-gradient(ellipse at center, hsl(168 95% 82% / 0.14) 0%, transparent 70%);
     --glow-accent: 0 0 120px hsl(168 95% 82% / 0.15);
     --transition-breath: all 2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-dissolve: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -95,7 +95,15 @@ All colors MUST be HSL.
 }
 
 .glow-center {
-  background: radial-gradient(ellipse 60% 50% at 50% 40%, hsl(168 95% 82% / 0.08) 0%, transparent 70%);
+  background: radial-gradient(ellipse 60% 50% at 50% 40%, hsl(168 95% 82% / 0.14) 0%, transparent 70%);
+}
+
+.blend-screen {
+  mix-blend-mode: screen;
+}
+
+.blend-lighten {
+  mix-blend-mode: lighten;
 }
 
 .glow-text {

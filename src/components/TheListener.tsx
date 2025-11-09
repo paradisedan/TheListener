@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 
 interface TheListenerProps {
   state: 'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant';
-  waveformAmplitude?: number;
+  waveformAmplitudes?: number[];
   keystrokePulse?: number;
 }
 
-export function TheListener({ state, waveformAmplitude = 0, keystrokePulse = 0 }: TheListenerProps) {
+export function TheListener({ state, waveformAmplitudes = [], keystrokePulse = 0 }: TheListenerProps) {
   const [breathPhase, setBreathPhase] = useState(0);
 
   useEffect(() => {
@@ -17,10 +17,19 @@ export function TheListener({ state, waveformAmplitude = 0, keystrokePulse = 0 }
     return () => clearInterval(interval);
   }, []);
 
+  // Calculate ear flicker from outer waveform bars
+  const getEarFlicker = () => {
+    if (waveformAmplitudes.length === 0) return 0;
+    const leftBars = waveformAmplitudes.slice(0, 5);
+    const rightBars = waveformAmplitudes.slice(35, 40);
+    const avgAmplitude = [...leftBars, ...rightBars].reduce((a, b) => a + b, 0) / 10;
+    return avgAmplitude * 1.2;
+  };
+
   const baseOpacity = state === 'dormant' ? 0.05 : 0.12;
   const breathAmount = Math.sin(breathPhase) * 0.05;
   const earTilt = state === 'typing' || state === 'focused' ? -3 : 0;
-  const earFlicker = waveformAmplitude * 0.5;
+  const earFlicker = getEarFlicker();
   const keystrokeBoost = keystrokePulse * 0.15;
 
   return (

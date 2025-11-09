@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
 interface PlayerBarProps {
   version: number;
@@ -6,6 +7,20 @@ interface PlayerBarProps {
 }
 
 export function PlayerBar({ version, countdown }: PlayerBarProps) {
+  const [prevMinute, setPrevMinute] = useState('');
+  const [isMinuteChange, setIsMinuteChange] = useState(false);
+
+  useEffect(() => {
+    const currentMinute = countdown.slice(0, 5); // Get HH:MM part
+    
+    if (prevMinute && currentMinute !== prevMinute) {
+      setIsMinuteChange(true);
+      setTimeout(() => setIsMinuteChange(false), 2000);
+    }
+    
+    setPrevMinute(currentMinute);
+  }, [countdown, prevMinute]);
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -23,7 +38,14 @@ export function PlayerBar({ version, countdown }: PlayerBarProps) {
         </motion.div>
         
         <motion.div 
-          className="font-mono text-sm opacity-40 tracking-widest flicker"
+          className="font-mono text-sm tracking-widest flicker"
+          animate={{
+            opacity: isMinuteChange ? [0.4, 0.1, 0.4] : 0.4,
+          }}
+          transition={{
+            duration: isMinuteChange ? 2 : 0,
+            ease: 'easeInOut',
+          }}
         >
           next emergence in {countdown}
         </motion.div>
