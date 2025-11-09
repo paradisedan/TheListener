@@ -1,50 +1,88 @@
 import { useState } from 'react';
-import { Send } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
 export function PromptSection() {
   const [prompt, setPrompt] = useState('');
+  const [isDissolving, setIsDissolving] = useState(false);
 
   const handleSubmit = () => {
     if (prompt.trim()) {
-      toast.success('Your idea has been submitted! 🎵');
-      setPrompt('');
+      setIsDissolving(true);
+      
+      setTimeout(() => {
+        toast.success('your words dissolve into the waveform', {
+          style: {
+            background: 'transparent',
+            border: 'none',
+            color: 'hsl(168 95% 82%)',
+            fontFamily: 'Space Mono, monospace',
+            fontSize: '12px',
+          }
+        });
+        setPrompt('');
+        setIsDissolving(false);
+      }, 1500);
     }
   };
 
   return (
-    <div className="mb-16 mt-8">
-      <h2 className="text-4xl md:text-5xl font-serif font-light mb-12 text-center tracking-tight leading-tight">
-        What should the song do next?
-      </h2>
+    <div className="flex flex-col items-center justify-center min-h-[60vh]">
+      <motion.h1 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 2, delay: 0.5 }}
+        className="text-6xl md:text-7xl lg:text-8xl font-serif font-light text-center mb-16 leading-tight glow-text"
+        style={{ letterSpacing: '0.02em' }}
+      >
+        what should the song do next?
+      </motion.h1>
       
-      <div className="relative max-w-2xl mx-auto">
-        <Textarea
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Introduce a subtle bassline... shift to minor key... add layered vocals..."
-          className="min-h-[140px] pr-14 resize-none bg-transparent border-0 border-b border-border/30 focus:border-foreground/30 transition-all text-base font-light leading-relaxed placeholder:text-muted-foreground/30 rounded-none px-0"
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 2, delay: 1 }}
+        className="relative w-full max-w-3xl"
+      >
+        <AnimatePresence>
+          {isDissolving && (
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0, y: -40, filter: 'blur(8px)' }}
+              transition={{ duration: 1.5 }}
+            >
+              <div className="text-2xl font-light opacity-50 text-center">
+                {prompt}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        <input
+          type="text"
+          value={isDissolving ? '' : prompt}
+          onChange={(e) => !isDissolving && setPrompt(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && e.ctrlKey) {
+            if (e.key === 'Enter' && !isDissolving) {
               handleSubmit();
             }
           }}
+          placeholder="introduce a subtle bassline... shift to minor key..."
+          className="w-full bg-transparent border-0 border-b border-foreground/10 focus:border-foreground/30 outline-none text-2xl font-light text-center py-4 px-0 transition-all duration-1000 placeholder:text-muted-foreground/20 placeholder:font-light"
+          style={{ caretColor: 'hsl(168 95% 82%)' }}
+          disabled={isDissolving}
         />
-        <Button
-          onClick={handleSubmit}
-          disabled={!prompt.trim()}
-          size="icon"
-          className="absolute bottom-3 right-0 rounded-none border-0 bg-transparent hover:bg-transparent transition-opacity hover:opacity-60 disabled:opacity-20"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
-      </div>
+      </motion.div>
       
-      <p className="text-xs text-muted-foreground/40 text-center mt-6 font-sans tracking-wider uppercase">
-        Ctrl + Enter to contribute
-      </p>
+      <motion.p 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.2 }}
+        transition={{ duration: 2, delay: 1.5 }}
+        className="text-xs font-mono tracking-widest mt-8"
+      >
+        press enter to contribute
+      </motion.p>
     </div>
   );
 }

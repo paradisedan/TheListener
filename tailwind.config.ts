@@ -65,7 +65,8 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        serif: ['Crimson Pro', 'serif'],
+        serif: ['Cormorant', 'serif'],
+        mono: ['Space Mono', 'monospace'],
       },
       keyframes: {
         "accordion-down": {
@@ -88,43 +89,30 @@ export default {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
         },
-        "pulse-heartbeat": {
-          "0%, 100%": { opacity: "0.3" },
-          "50%": { opacity: "0.5" },
+        "breath": {
+          "0%, 100%": { opacity: "0.4", filter: "blur(40px)" },
+          "50%": { opacity: "0.6", filter: "blur(60px)" },
         },
-        "drift-up": {
-          from: {
-            opacity: "0",
-            transform: "translateY(10px)",
-          },
-          to: {
-            opacity: "1",
-            transform: "translateY(0)",
-          },
+        "flicker": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.97" },
         },
-        "digit-drift": {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-2px)" },
+        "drift-horizontal": {
+          "0%": { transform: "translateX(-10px)" },
+          "100%": { transform: "translateX(10px)" },
         },
-        "float-up": {
-          from: {
-            opacity: "0",
-            transform: "translateY(20px)",
-          },
-          to: {
-            opacity: "1",
-            transform: "translateY(0)",
-          },
+        "dissolve": {
+          "0%": { opacity: "1", transform: "translateY(0)", filter: "blur(0)" },
+          "100%": { opacity: "0", transform: "translateY(-40px)", filter: "blur(4px)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "gradient-shift": "gradient-shift 20s ease infinite",
-        "pulse-heartbeat": "pulse-heartbeat 4s ease-in-out infinite",
-        "drift-up": "drift-up 0.8s ease-out",
-        "digit-drift": "digit-drift 3s ease-in-out infinite",
-        "float-up": "float-up 1s ease-out",
+        "breath": "breath 8s ease-in-out infinite",
+        "flicker": "flicker 2s ease-in-out infinite",
+        "drift-horizontal": "drift-horizontal 4s ease-in-out infinite alternate",
+        "dissolve": "dissolve 1.5s ease-out forwards",
       },
     },
   },
