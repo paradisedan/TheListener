@@ -18,7 +18,7 @@ export function PromptSection({ onTyping, onSubmit }: PromptSectionProps) {
       onSubmit?.();
       
       setTimeout(() => {
-        toast.success('the listener hears you', {
+        toast.success('we hear you', {
           style: {
             background: 'transparent',
             border: 'none',

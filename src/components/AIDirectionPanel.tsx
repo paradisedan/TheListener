@@ -2,12 +2,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
 const POETIC_PHRASES = [
-  'the listener is awake.',
-  'the listener breathes.',
-  'the listener waits.',
-  'the room is listening.',
+  'we are awake.',
+  'we breathe.',
+  'we wait.',
+  'we are listening.',
   'the silence grows heavy.',
-  'something hears you.',
+  'we hear you.',
 ];
 
 export function AIDirectionPanel() {
