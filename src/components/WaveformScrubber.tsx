@@ -20,7 +20,9 @@ export function WaveformScrubber({
   const [isDragging, setIsDragging] = useState(false);
   const [playheadPosition, setPlayheadPosition] = useState(0);
   const [hoverPosition, setHoverPosition] = useState<number | null>(null);
+  const [dragStartX, setDragStartX] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const DRAG_THRESHOLD = 5; // pixels
 
   useEffect(() => {
     if (!audioController || isDragging) return;
@@ -52,8 +54,8 @@ export function WaveformScrubber({
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    handleScrub(e.clientX);
+    e.preventDefault(); // Prevent text selection
+    setDragStartX(e.clientX);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -63,6 +65,14 @@ export function WaveformScrubber({
     const percentage = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     setHoverPosition(percentage * 100);
 
+    // Check if we've moved enough to start dragging
+    if (dragStartX !== null && !isDragging) {
+      const distance = Math.abs(e.clientX - dragStartX);
+      if (distance > DRAG_THRESHOLD) {
+        setIsDragging(true);
+      }
+    }
+
     if (isDragging) {
       handleScrub(e.clientX);
     }
@@ -70,6 +80,7 @@ export function WaveformScrubber({
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    setDragStartX(null);
   };
 
   const handleMouseLeave = () => {
@@ -77,10 +88,18 @@ export function WaveformScrubber({
     if (isDragging) {
       setIsDragging(false);
     }
+    setDragStartX(null);
   };
 
-  const handleClick = () => {
-    onPlayToggle?.();
+  const handleClick = (e: React.MouseEvent) => {
+    // Only toggle play if it was a click, not a drag
+    if (dragStartX !== null) {
+      const distance = Math.abs(e.clientX - dragStartX);
+      if (distance <= DRAG_THRESHOLD) {
+        onPlayToggle?.();
+      }
+    }
+    setDragStartX(null);
   };
 
   useEffect(() => {
@@ -105,7 +124,9 @@ export function WaveformScrubber({
   return (
     <motion.div
       ref={containerRef}
-      className="fixed inset-0 flex items-center justify-center cursor-pointer"
+      className={`fixed inset-0 flex items-center justify-center select-none ${
+        isDragging ? 'cursor-grabbing' : 'cursor-grab'
+      }`}
       style={{ zIndex: 10 }}
       animate={{
         opacity: isIdle ? 0.1 : 0.05,
