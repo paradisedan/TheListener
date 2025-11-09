@@ -6,12 +6,12 @@ import { AIDirectionPanel } from '@/components/AIDirectionPanel';
 import { DriftingContributors } from '@/components/DriftingContributors';
 import { MixHistory } from '@/components/MixHistory';
 import { VersionDrawer } from '@/components/VersionDrawer';
+import { TheListener } from '@/components/TheListener';
 import { useCountdown } from '@/hooks/useCountdown';
 import {
   mockUsers,
   mockComments,
   mockVersions,
-  aiDirection,
   getRandomComment,
   Comment,
   Version,
@@ -21,24 +21,35 @@ const Index = () => {
   const [comments, setComments] = useState<Comment[]>(mockComments);
   const [selectedVersion, setSelectedVersion] = useState<Version | null>(null);
   const [isIdle, setIsIdle] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [listenerState, setListenerState] = useState<'idle' | 'typing' | 'submitting' | 'rebirth' | 'dormant'>('idle');
   const countdown = useCountdown();
   const currentVersion = mockVersions.length;
 
-  // Handle idle state
+  // Handle idle state and listener state
   useEffect(() => {
     let idleTimer: NodeJS.Timeout;
 
     const resetIdle = () => {
       setIsIdle(false);
+      if (!isTyping) {
+        setListenerState('idle');
+      }
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => setIsIdle(true), 30000); // 30s
+      idleTimer = setTimeout(() => {
+        setIsIdle(true);
+        setListenerState('dormant');
+      }, 60000); // 60s for dormant
     };
 
     window.addEventListener('mousemove', resetIdle);
     window.addEventListener('keydown', resetIdle);
     window.addEventListener('click', resetIdle);
 
-    idleTimer = setTimeout(() => setIsIdle(true), 30000);
+    idleTimer = setTimeout(() => {
+      setIsIdle(true);
+      setListenerState('dormant');
+    }, 60000);
 
     return () => {
       clearTimeout(idleTimer);
@@ -46,7 +57,23 @@ const Index = () => {
       window.removeEventListener('keydown', resetIdle);
       window.removeEventListener('click', resetIdle);
     };
-  }, []);
+  }, [isTyping]);
+
+  // Update listener state based on typing
+  useEffect(() => {
+    if (isTyping) {
+      setListenerState('typing');
+    } else if (!isIdle) {
+      setListenerState('idle');
+    }
+  }, [isTyping, isIdle]);
+
+  const handleSubmit = () => {
+    setListenerState('submitting');
+    setTimeout(() => {
+      setListenerState('idle');
+    }, 600);
+  };
 
   // Add new comments periodically
   useEffect(() => {
@@ -64,6 +91,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
+      {/* Idle darken overlay */}
+      <motion.div 
+        className="fixed inset-0 bg-black pointer-events-none"
+        style={{ zIndex: 15 }}
+        animate={{
+          opacity: isIdle ? 0.5 : 0,
+        }}
+        transition={{ duration: 4 }}
+      />
+      
       {/* Central glow */}
       <motion.div 
         className="fixed inset-0 glow-center breath pointer-events-none"
@@ -100,18 +137,24 @@ const Index = () => {
         </div>
       </motion.div>
 
+      {/* The Listener - living presence */}
+      <TheListener state={listenerState} waveformAmplitude={0.3} />
+
       <PlayerBar version={currentVersion} countdown={countdown} />
       
       <motion.div
         animate={{
-          opacity: isIdle ? 0 : 1,
+          opacity: isIdle ? 0.7 : 1,
         }}
         transition={{ duration: 2 }}
       >
-        <PromptSection />
+        <PromptSection 
+          onTyping={setIsTyping}
+          onSubmit={handleSubmit}
+        />
       </motion.div>
 
-      <AIDirectionPanel direction={aiDirection} />
+      <AIDirectionPanel />
       
       <DriftingContributors users={mockUsers} comments={comments} />
       

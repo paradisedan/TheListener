@@ -1,11 +1,25 @@
-import { motion } from 'framer-motion';
-import { Brain } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
-interface AIDirectionPanelProps {
-  direction: string;
-}
+const POETIC_PHRASES = [
+  'the listener is awake.',
+  'the listener breathes.',
+  'the listener waits.',
+  'the room is listening.',
+  'the silence grows heavy.',
+  'something hears you.',
+];
 
-export function AIDirectionPanel({ direction }: AIDirectionPanelProps) {
+export function AIDirectionPanel() {
+  const [currentPhrase, setCurrentPhrase] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPhrase((prev) => (prev + 1) % POETIC_PHRASES.length);
+    }, 75000); // 75 seconds
+
+    return () => clearInterval(interval);
+  }, []);
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -15,27 +29,19 @@ export function AIDirectionPanel({ direction }: AIDirectionPanelProps) {
     >
       <div className="container mx-auto max-w-4xl">
         <div className="flex flex-col items-center gap-4 text-center">
-          <motion.div 
-            animate={{ opacity: [0.2, 0.3, 0.2] }}
-            transition={{ duration: 6, repeat: Infinity }}
-            className="flex items-center gap-2"
-          >
-            <Brain className="h-3 w-3 opacity-20" />
-            <span className="text-xs font-mono tracking-widest opacity-20">
-              system reflection
-            </span>
-          </motion.div>
-          
-          <motion.p 
-            key={direction}
-            initial={{ opacity: 0, filter: 'blur(4px)' }}
-            animate={{ opacity: 0.5, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, filter: 'blur(4px)' }}
-            transition={{ duration: 2 }}
-            className="text-lg md:text-xl font-light leading-relaxed max-w-2xl"
-          >
-            {direction}
-          </motion.p>
+          <AnimatePresence mode="wait">
+            <motion.p 
+              key={currentPhrase}
+              initial={{ opacity: 0, filter: 'blur(4px)' }}
+              animate={{ opacity: 0.4, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, filter: 'blur(4px)' }}
+              transition={{ duration: 3 }}
+              className="text-base font-mono tracking-wider leading-relaxed max-w-2xl"
+              style={{ letterSpacing: '0.15em' }}
+            >
+              {POETIC_PHRASES[currentPhrase]}
+            </motion.p>
+          </AnimatePresence>
         </div>
       </div>
     </motion.div>
