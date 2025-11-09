@@ -2,11 +2,12 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
 interface TheListenerProps {
-  state: 'idle' | 'typing' | 'submitting' | 'rebirth' | 'dormant';
+  state: 'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant';
   waveformAmplitude?: number;
+  keystrokePulse?: number;
 }
 
-export function TheListener({ state, waveformAmplitude = 0 }: TheListenerProps) {
+export function TheListener({ state, waveformAmplitude = 0, keystrokePulse = 0 }: TheListenerProps) {
   const [breathPhase, setBreathPhase] = useState(0);
 
   useEffect(() => {
@@ -18,8 +19,9 @@ export function TheListener({ state, waveformAmplitude = 0 }: TheListenerProps) 
 
   const baseOpacity = state === 'dormant' ? 0.05 : 0.12;
   const breathAmount = Math.sin(breathPhase) * 0.05;
-  const earTilt = state === 'typing' ? -5 : 0;
+  const earTilt = state === 'typing' || state === 'focused' ? -3 : 0;
   const earFlicker = waveformAmplitude * 0.5;
+  const keystrokeBoost = keystrokePulse * 0.15;
 
   return (
     <motion.div
@@ -31,10 +33,17 @@ export function TheListener({ state, waveformAmplitude = 0 }: TheListenerProps) 
               opacity: [baseOpacity, baseOpacity + 0.08, baseOpacity],
               scale: [1, 1.03, 1],
             }
+          : state === 'focused'
+          ? {
+              opacity: baseOpacity + 0.1,
+              scale: 1.04,
+              filter: 'blur(20px)',
+            }
           : state === 'typing'
           ? {
-              opacity: baseOpacity + 0.08,
-              scale: 1.02,
+              opacity: baseOpacity + 0.12 + keystrokeBoost,
+              scale: 1.05 + keystrokeBoost * 0.3,
+              filter: 'blur(19px)',
             }
           : state === 'submitting'
           ? {
@@ -55,6 +64,10 @@ export function TheListener({ state, waveformAmplitude = 0 }: TheListenerProps) 
           ? { duration: 1.4, ease: 'easeInOut', times: [0, 0.3, 0.6, 1] }
           : state === 'rebirth'
           ? { duration: 4, ease: 'easeInOut', times: [0, 0.2, 0.6, 1] }
+          : state === 'focused'
+          ? { duration: 0.4, ease: 'easeOut' }
+          : state === 'typing'
+          ? { duration: 0.15, ease: 'easeOut' }
           : { duration: 10, ease: 'easeInOut', repeat: Infinity }
       }
     >

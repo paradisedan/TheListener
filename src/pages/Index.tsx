@@ -21,8 +21,10 @@ const Index = () => {
   const [comments, setComments] = useState<Comment[]>(mockComments);
   const [selectedVersion, setSelectedVersion] = useState<Version | null>(null);
   const [isIdle, setIsIdle] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [listenerState, setListenerState] = useState<'idle' | 'typing' | 'submitting' | 'rebirth' | 'dormant'>('idle');
+  const [keystrokePulse, setKeystrokePulse] = useState(0);
+  const [listenerState, setListenerState] = useState<'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant'>('idle');
   const countdown = useCountdown();
   const currentVersion = mockVersions.length;
 
@@ -59,20 +61,35 @@ const Index = () => {
     };
   }, [isTyping]);
 
-  // Update listener state based on typing
+  // Update listener state based on focus and typing
   useEffect(() => {
     if (isTyping) {
       setListenerState('typing');
+    } else if (isFocused && !isIdle) {
+      setListenerState('focused');
     } else if (!isIdle) {
       setListenerState('idle');
     }
-  }, [isTyping, isIdle]);
+  }, [isTyping, isFocused, isIdle]);
 
   const handleSubmit = () => {
     setListenerState('submitting');
     setTimeout(() => {
       setListenerState('idle');
     }, 1400);
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
+
+  const handleKeystroke = () => {
+    setKeystrokePulse(1);
+    setTimeout(() => setKeystrokePulse(0), 150);
   };
 
   // Add new comments periodically
@@ -138,7 +155,11 @@ const Index = () => {
       </motion.div>
 
       {/* The Listener - living presence */}
-      <TheListener state={listenerState} waveformAmplitude={0.3} />
+      <TheListener 
+        state={listenerState} 
+        waveformAmplitude={0.3}
+        keystrokePulse={keystrokePulse}
+      />
 
       <PlayerBar version={currentVersion} countdown={countdown} />
       
@@ -151,6 +172,9 @@ const Index = () => {
         <PromptSection 
           onTyping={setIsTyping}
           onSubmit={handleSubmit}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeystroke={handleKeystroke}
         />
       </motion.div>
 

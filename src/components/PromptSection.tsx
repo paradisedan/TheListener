@@ -5,9 +5,12 @@ import { toast } from 'sonner';
 interface PromptSectionProps {
   onTyping?: (isTyping: boolean) => void;
   onSubmit?: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  onKeystroke?: () => void;
 }
 
-export function PromptSection({ onTyping, onSubmit }: PromptSectionProps) {
+export function PromptSection({ onTyping, onSubmit, onFocus, onBlur, onKeystroke }: PromptSectionProps) {
   const [prompt, setPrompt] = useState('');
   const [isDissolving, setIsDissolving] = useState(false);
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
@@ -53,6 +56,9 @@ export function PromptSection({ onTyping, onSubmit }: PromptSectionProps) {
       setTimeout(() => {
         setRipples((prev) => prev.filter((r) => r.id !== newRipple.id));
       }, 800);
+      
+      // Notify parent of keystroke
+      onKeystroke?.();
     }
   };
 
@@ -130,6 +136,8 @@ export function PromptSection({ onTyping, onSubmit }: PromptSectionProps) {
               onTyping?.(e.target.value.length > 0);
             }
           }}
+          onFocus={() => onFocus?.()}
+          onBlur={() => onBlur?.()}
           onKeyPress={handleKeyPress}
           onKeyDown={handleKeyDown}
           placeholder="introduce a subtle bassline... shift to minor key..."
