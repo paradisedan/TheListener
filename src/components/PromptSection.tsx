@@ -141,7 +141,7 @@ export function PromptSection({ onTyping, onSubmit, onFocus, onBlur, onKeystroke
           onKeyPress={handleKeyPress}
           onKeyDown={handleKeyDown}
           placeholder="introduce a subtle bassline... shift to minor key..."
-          className="w-full bg-transparent border-0 border-b border-foreground/10 focus:border-foreground/30 outline-none text-2xl font-light text-center py-4 px-0 transition-all duration-1000 placeholder:text-muted-foreground/20 placeholder:font-light"
+          className="w-full bg-transparent border-0 border-b border-foreground/10 focus:border-foreground/30 outline-none text-2xl font-light text-center py-4 px-0 transition-all duration-1000 placeholder:text-muted-foreground/20 placeholder:font-light placeholder:transition-opacity placeholder:duration-500 focus:placeholder:opacity-0"
           style={{ caretColor: 'hsl(168 95% 82%)' }}
           disabled={isDissolving}
         />
