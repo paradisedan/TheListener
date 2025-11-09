@@ -117,3 +117,29 @@ All colors MUST be HSL.
 .flicker {
   animation: flicker 2s ease-in-out infinite;
 }
+
+/* Transport Controls */
+.transport-button {
+  @apply transition-opacity duration-300 hover:opacity-80 focus-visible:opacity-80;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+}
+
+.playhead {
+  @apply absolute top-0 w-0.5 h-full bg-primary;
+  transition: left 0.1s ease-out;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .transport-button,
+  .playhead {
+    transition: none !important;
+  }
+}
+
+/* Reduced transparency */
+@media (prefers-reduced-transparency: reduce) {
+  .transport-button {
+    opacity: 1 !important;
+  }
+}

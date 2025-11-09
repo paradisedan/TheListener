@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { PlayerBar } from '@/components/PlayerBar';
 import { PromptSection } from '@/components/PromptSection';
 import { AIDirectionPanel } from '@/components/AIDirectionPanel';
@@ -8,7 +8,11 @@ import { MixHistory } from '@/components/MixHistory';
 import { VersionDrawer } from '@/components/VersionDrawer';
 import { TheListener } from '@/components/TheListener';
 import { Colophon } from '@/components/Colophon';
+import { Transport } from '@/components/Transport';
+import { AudioStartOverlay } from '@/components/AudioStartOverlay';
+import { WaveformScrubber } from '@/components/WaveformScrubber';
 import { useCountdown } from '@/hooks/useCountdown';
+import { createAudioController, AudioController } from '@/lib/audio';
 import {
   mockUsers,
   mockComments,
@@ -28,6 +32,11 @@ const Index = () => {
   const [listenerState, setListenerState] = useState<'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant'>('idle');
   const [waveformAmplitudes, setWaveformAmplitudes] = useState<number[]>(Array(40).fill(0.5));
   const [whisperTrigger, setWhisperTrigger] = useState(0);
+  const [audioNeedsStart, setAudioNeedsStart] = useState(true);
+  const [audioController, setAudioController] = useState<AudioController | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [audioEventGlow, setAudioEventGlow] = useState(0);
   const countdownData = useCountdown();
   const countdown = countdownData.display;
   const countdownMs = countdownData.remainingMs;
@@ -130,8 +139,97 @@ const Index = () => {
     setWhisperTrigger(prev => prev + 1);
   };
 
+  const handleAudioStart = () => {
+    setAudioNeedsStart(false);
+    audioController?.play();
+    setIsPlaying(true);
+  };
+
+  const handlePlayToggle = () => {
+    if (!audioController) return;
+    audioController.togglePlay();
+    setIsPlaying(audioController.isPlaying());
+  };
+
+  const handleSeek = () => {
+    // Brief ear pulse on seek
+    setAudioEventGlow(prev => prev + 1);
+  };
+
+  // Initialize audio controller
+  useEffect(() => {
+    const controller = createAudioController({
+      startMuted: true,
+      loop: true,
+      onPlay: () => {
+        setIsPlaying(true);
+        // Ears glow +8% for 500ms
+        setAudioEventGlow(prev => prev + 1);
+      },
+      onPause: () => {
+        setIsPlaying(false);
+        setListenerState(prev => prev === 'typing' || prev === 'focused' ? prev : 'idle');
+      },
+      onSeek: () => {
+        // Brief 300ms ear pulse
+        setAudioEventGlow(prev => prev + 1);
+      },
+      onMute: (muted) => {
+        setIsMuted(muted);
+      },
+    });
+
+    setAudioController(controller);
+    return () => controller.cleanup();
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in input fields
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      switch (e.key) {
+        case ' ':
+          e.preventDefault();
+          audioController?.togglePlay();
+          setIsPlaying(audioController?.isPlaying() || false);
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          audioController?.skip(-5);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          audioController?.skip(5);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          audioController?.adjustVolume(0.1);
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          audioController?.adjustVolume(-0.1);
+          break;
+        case 'm':
+        case 'M':
+          audioController?.toggleMute();
+          setIsMuted(audioController?.isMuted() || false);
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [audioController]);
+
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
+      {/* Audio start overlay */}
+      <AnimatePresence>
+        {audioNeedsStart && <AudioStartOverlay onStart={handleAudioStart} />}
+      </AnimatePresence>
+
       {/* Idle darken overlay */}
       <motion.div 
         className="fixed inset-0 bg-black pointer-events-none"
@@ -152,31 +250,14 @@ const Index = () => {
         transition={{ duration: 3 }}
       />
       
-      {/* Ambient waveform visualization */}
-      <motion.div 
-        className="fixed inset-0 flex items-center justify-center pointer-events-none blend-screen"
-        style={{ zIndex: 10 }}
-        animate={{
-          opacity: isIdle ? 0.1 : 0.05,
-        }}
-        transition={{ duration: 3 }}
-      >
-        <div className="flex gap-1 items-end">
-          {waveformAmplitudes.map((amplitude, i) => (
-            <motion.div
-              key={i}
-              className="w-1 bg-primary/30 rounded-full"
-              animate={{
-                height: `${amplitude * 60 + 20}px`,
-              }}
-              transition={{
-                duration: 0.2,
-                ease: 'easeOut',
-              }}
-            />
-          ))}
-        </div>
-      </motion.div>
+      {/* Interactive waveform visualization with scrubbing */}
+      <WaveformScrubber
+        audioController={audioController}
+        waveformAmplitudes={waveformAmplitudes}
+        isIdle={isIdle}
+        onSeek={handleSeek}
+        onPlayToggle={handlePlayToggle}
+      />
 
       {/* The Listener - living presence */}
       <div className="fixed inset-0 pointer-events-none blend-lighten" style={{ zIndex: 20 }}>
@@ -185,6 +266,9 @@ const Index = () => {
           waveformAmplitudes={waveformAmplitudes}
           keystrokePulse={keystrokePulse}
           whisperGlow={whisperTrigger}
+          audioPlaying={isPlaying}
+          audioMuted={isMuted}
+          audioEventGlow={audioEventGlow}
         />
       </div>
 
@@ -197,6 +281,11 @@ const Index = () => {
       />
 
       <PlayerBar version={currentVersion} countdown={countdown} />
+
+      {/* Transport controls */}
+      {audioController && !audioNeedsStart && (
+        <Transport audioController={audioController} />
+      )}
       
       <motion.div
         style={{ zIndex: 40 }}

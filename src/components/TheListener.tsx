@@ -6,11 +6,23 @@ interface TheListenerProps {
   waveformAmplitudes?: number[];
   keystrokePulse?: number;
   whisperGlow?: number;
+  audioPlaying?: boolean;
+  audioMuted?: boolean;
+  audioEventGlow?: number;
 }
 
-export function TheListener({ state, waveformAmplitudes = [], keystrokePulse = 0, whisperGlow = 0 }: TheListenerProps) {
+export function TheListener({ 
+  state, 
+  waveformAmplitudes = [], 
+  keystrokePulse = 0, 
+  whisperGlow = 0,
+  audioPlaying = false,
+  audioMuted = false,
+  audioEventGlow = 0,
+}: TheListenerProps) {
   const [breathPhase, setBreathPhase] = useState(0);
   const [whisperGlowActive, setWhisperGlowActive] = useState(0);
+  const [audioGlowActive, setAudioGlowActive] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -27,6 +39,14 @@ export function TheListener({ state, waveformAmplitudes = [], keystrokePulse = 0
     }
   }, [whisperGlow]);
 
+  // Handle audio event glow trigger
+  useEffect(() => {
+    if (audioEventGlow > 0) {
+      setAudioGlowActive(0.08); // +8% boost for play
+      setTimeout(() => setAudioGlowActive(0), 500);
+    }
+  }, [audioEventGlow]);
+
   // Calculate ear flicker from outer waveform bars
   const getEarFlicker = () => {
     if (waveformAmplitudes.length === 0) return 0;
@@ -41,6 +61,8 @@ export function TheListener({ state, waveformAmplitudes = [], keystrokePulse = 0
   const earTilt = state === 'typing' || state === 'focused' ? -3 : 0;
   const earFlicker = getEarFlicker();
   const keystrokeBoost = keystrokePulse * 0.15;
+  const audioBoost = audioPlaying ? 0.08 : 0;
+  const muteOpacity = audioMuted ? 0.4 : 1;
 
   return (
     <motion.div
@@ -49,30 +71,30 @@ export function TheListener({ state, waveformAmplitudes = [], keystrokePulse = 0
       animate={
         state === 'idle' || state === 'dormant'
           ? {
-              opacity: [baseOpacity, baseOpacity + 0.08, baseOpacity],
+              opacity: [(baseOpacity + audioBoost + audioGlowActive) * muteOpacity, (baseOpacity + 0.08 + audioBoost + audioGlowActive) * muteOpacity, (baseOpacity + audioBoost + audioGlowActive) * muteOpacity],
               scale: [1, 1.03, 1],
             }
           : state === 'focused'
           ? {
-              opacity: baseOpacity + 0.1,
+              opacity: (baseOpacity + 0.1 + audioBoost + audioGlowActive) * muteOpacity,
               scale: 1.04,
               filter: 'blur(20px)',
             }
           : state === 'typing'
           ? {
-              opacity: baseOpacity + 0.12 + keystrokeBoost,
+              opacity: (baseOpacity + 0.12 + keystrokeBoost + audioBoost + audioGlowActive) * muteOpacity,
               scale: 1.05 + keystrokeBoost * 0.3,
               filter: 'blur(19px)',
             }
           : state === 'submitting'
           ? {
-              opacity: [baseOpacity, 0.7, 0.6, baseOpacity],
+              opacity: [baseOpacity * muteOpacity, 0.7 * muteOpacity, 0.6 * muteOpacity, baseOpacity * muteOpacity],
               scale: [1, 1.12, 1.1, 1],
               filter: ['blur(22px)', 'blur(8px)', 'blur(10px)', 'blur(22px)'],
             }
           : state === 'rebirth'
           ? {
-              opacity: [0, 1, 0, baseOpacity],
+              opacity: [0, 1 * muteOpacity, 0, baseOpacity * muteOpacity],
               scale: [1, 1.15, 1.15, 1],
               filter: ['blur(22px)', 'blur(0px)', 'blur(50px)', 'blur(22px)'],
             }
