@@ -14,6 +14,7 @@ export function PromptSection({ onTyping, onSubmit, onFocus, onBlur, onKeystroke
   const [prompt, setPrompt] = useState('');
   const [isDissolving, setIsDissolving] = useState(false);
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [showPlaceholder, setShowPlaceholder] = useState(true);
 
   const handleSubmit = () => {
     if (prompt.trim()) {
@@ -33,6 +34,11 @@ export function PromptSection({ onTyping, onSubmit, onFocus, onBlur, onKeystroke
         setPrompt('');
         setIsDissolving(false);
         onTyping?.(false);
+        
+        // Delay before showing placeholder again
+        setTimeout(() => {
+          setShowPlaceholder(true);
+        }, 200);
       }, 1500);
     }
   };
@@ -136,12 +142,12 @@ export function PromptSection({ onTyping, onSubmit, onFocus, onBlur, onKeystroke
               onTyping?.(e.target.value.length > 0);
             }
           }}
-          onFocus={() => onFocus?.()}
-          onBlur={() => onBlur?.()}
+          onFocus={() => { setShowPlaceholder(false); onFocus?.(); }}
+          onBlur={() => { if (!prompt && !isDissolving) setShowPlaceholder(true); onBlur?.(); }}
           onKeyPress={handleKeyPress}
           onKeyDown={handleKeyDown}
           placeholder="introduce a subtle bassline... shift to minor key..."
-          className="w-full bg-transparent border-0 border-b border-foreground/10 focus:border-foreground/30 outline-none text-2xl font-light text-center py-4 px-0 transition-all duration-1000 placeholder:text-muted-foreground/20 placeholder:font-light placeholder:transition-opacity placeholder:duration-500 focus:placeholder:opacity-0"
+          className={`w-full bg-transparent border-0 border-b border-foreground/10 focus:border-foreground/30 outline-none text-2xl font-light text-center py-4 px-0 transition-all duration-1000 placeholder:text-muted-foreground/20 placeholder:font-light placeholder:transition-opacity placeholder:duration-1000 ${showPlaceholder ? '' : 'placeholder:opacity-0'}`}
           style={{ caretColor: 'hsl(168 95% 82%)' }}
           disabled={isDissolving}
         />
