@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { Comment } from '@/data/mockData';
 import { toFragment, pickWeighted, shouldShowWhisper } from '@/lib/whispers';
 
@@ -51,6 +51,15 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
   const isRemixProximity = countdownMs < 1800000; // <30min
   const isRemixImminent = countdownMs < 10000; // <10s
 
+  // Use refs to avoid dependency restarts
+  const activeWhispersRef = useRef(activeWhispers);
+  const recentWhisperIdsRef = useRef(recentWhisperIds);
+  
+  useEffect(() => {
+    activeWhispersRef.current = activeWhispers;
+    recentWhisperIdsRef.current = recentWhisperIds;
+  });
+
   // Handle remix silence at T=0
   useEffect(() => {
     if (countdownMs === 0 && !isRemixSilence) {
@@ -90,8 +99,8 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
 
       if (whisperPool.length === 0) return;
       
-      // Remove oldest if at max capacity
-      if (activeWhispers.length >= 5) {
+      // Remove oldest if at max capacity (use ref to avoid dependency)
+      if (activeWhispersRef.current.length >= 5) {
         setActiveWhispers(prev => prev.slice(1));
       }
 
@@ -102,12 +111,13 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
       const whisperData = whisperPool.find(w => w.comment.id === picked.id);
       if (!whisperData) return;
 
-      // Check deduplication
-      if (!shouldShowWhisper(recentWhisperIds, whisperData.id)) return;
+      // Check deduplication (use ref to avoid dependency)
+      if (!shouldShowWhisper(recentWhisperIdsRef.current, whisperData.id)) return;
 
       // Calculate position based on remix proximity
+      const isNearRemix = countdownMs < 1800000;
       let x: number, y: number;
-      if (isRemixProximity) {
+      if (isNearRemix) {
         // Cluster closer to center
         x = 35 + Math.random() * 30; // 35-65vw
         y = 60 + Math.random() * 12; // 60-72vh
@@ -117,7 +127,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
         y = 58 + Math.random() * 18; // 58-76vh
       }
 
-      const baseOpacity = isIdle ? 0.4 : isRemixProximity ? 0.7 : 0.5;
+      const baseOpacity = isIdle ? 0.4 : isNearRemix ? 0.7 : 0.5;
       const opacity = baseOpacity + Math.random() * 0.1 - 0.05;
 
       const newWhisper: ActiveWhisper = {
@@ -143,7 +153,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
     }, cadence);
 
     return () => clearInterval(interval);
-  }, [whisperPool, activeWhispers.length, recentWhisperIds, isIdle, countdownMs, isRemixSilence, hasShownRemixMessage, onWhisperAppear, isRemixProximity]);
+  }, [whisperPool, isIdle, countdownMs, isRemixSilence, hasShownRemixMessage, onWhisperAppear]);
 
   return (
     <div 
