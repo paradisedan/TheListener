@@ -21,12 +21,20 @@ interface ActiveWhisper {
 }
 
 const FORCED_REMIX_TEXT = 'we begin again…';
+const DEBUG = true; // Set to false to disable logging
 
 export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: WhispersProps) {
   const [activeWhispers, setActiveWhispers] = useState<ActiveWhisper[]>([]);
   const [recentWhisperIds, setRecentWhisperIds] = useState<string[]>([]);
   const [isRemixSilence, setIsRemixSilence] = useState(false);
   const [hasShownRemixMessage, setHasShownRemixMessage] = useState(false);
+
+  // Refs to avoid dependency restarts
+  const activeWhispersRef = useRef(activeWhispers);
+  const recentWhisperIdsRef = useRef(recentWhisperIds);
+  const countdownMsRef = useRef(countdownMs);
+  const isIdleRef = useRef(isIdle);
+  const justExitedSilenceRef = useRef(false);
 
   // Create pool of valid whisper fragments
   const whisperPool = useMemo(() => {
@@ -39,67 +47,72 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
       .filter(w => w.text !== null) as { id: string; text: string; comment: Comment }[];
   }, [comments]);
 
-  // Calculate cadence based on state
-  const getCadence = () => {
-    if (isRemixSilence) return Infinity;
-    if (countdownMs < 1800000) return 1500; // <30min: 1.5s
-    if (isIdle) return 6000; // Idle: 6s
-    return 2500; // Normal: 2.5s
-  };
-
-  // Determine if we're in remix proximity
-  const isRemixProximity = countdownMs < 1800000; // <30min
-  const isRemixImminent = countdownMs < 10000; // <10s
-
-  // Use refs to avoid dependency restarts
-  const activeWhispersRef = useRef(activeWhispers);
-  const recentWhisperIdsRef = useRef(recentWhisperIds);
-  
+  // Keep refs in sync
   useEffect(() => {
     activeWhispersRef.current = activeWhispers;
     recentWhisperIdsRef.current = recentWhisperIds;
+    countdownMsRef.current = countdownMs;
+    isIdleRef.current = isIdle;
   });
 
   // Handle remix silence at T=0
   useEffect(() => {
     if (countdownMs === 0 && !isRemixSilence) {
+      if (DEBUG) console.log('[Whispers] T=0: Entering remix silence');
       setIsRemixSilence(true);
       setActiveWhispers([]);
       setHasShownRemixMessage(false);
       
       // Resume after 2s with forced message
       setTimeout(() => {
+        if (DEBUG) console.log('[Whispers] Exiting remix silence');
         setIsRemixSilence(false);
+        justExitedSilenceRef.current = true;
       }, 2000);
     }
   }, [countdownMs, isRemixSilence]);
 
-  // Add new whispers on interval
+  // Self-scheduling whisper generator
   useEffect(() => {
-    const cadence = getCadence();
-    if (cadence === Infinity) return;
+    if (isRemixSilence) return;
 
-    const interval = setInterval(() => {
+    let cancelled = false;
+
+    const computeCadence = () => {
+      const cms = countdownMsRef.current;
+      const idle = isIdleRef.current;
+      
+      if (cms < 1800000) return 1500; // <30min: 1.5s
+      if (idle) return 6000; // Idle: 6s
+      return 2500; // Normal: 2.5s
+    };
+
+    const generateWhisper = () => {
       // Force "we begin again..." as first whisper after remix
-      if (!isRemixSilence && countdownMs < 100 && !hasShownRemixMessage) {
+      if (justExitedSilenceRef.current && !hasShownRemixMessage) {
+        if (DEBUG) console.log('[Whispers] Adding forced remix message');
         const forcedWhisper: ActiveWhisper = {
           id: `remix-${Date.now()}`,
           text: FORCED_REMIX_TEXT,
-          x: 50, // Center
+          x: 50,
           y: 65,
-          opacity: 0.4 + Math.random() * 0.2,
-          drift: 15 + Math.random() * 10,
-          duration: 5 + Math.random() * 3,
+          opacity: 0.5,
+          drift: 20,
+          duration: 6,
         };
         setActiveWhispers(prev => [...prev.slice(-3), forcedWhisper]);
         setHasShownRemixMessage(true);
+        justExitedSilenceRef.current = false;
         onWhisperAppear?.();
         return;
       }
 
-      if (whisperPool.length === 0) return;
+      if (whisperPool.length === 0) {
+        if (DEBUG) console.log('[Whispers] Pool empty, skipping');
+        return;
+      }
       
-      // Remove oldest if at max capacity (use ref to avoid dependency)
+      // Remove oldest if at max capacity
       if (activeWhispersRef.current.length >= 5) {
         setActiveWhispers(prev => prev.slice(1));
       }
@@ -111,23 +124,26 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
       const whisperData = whisperPool.find(w => w.comment.id === picked.id);
       if (!whisperData) return;
 
-      // Check deduplication (use ref to avoid dependency)
-      if (!shouldShowWhisper(recentWhisperIdsRef.current, whisperData.id)) return;
-
-      // Calculate position based on remix proximity
-      const isNearRemix = countdownMs < 1800000;
-      let x: number, y: number;
-      if (isNearRemix) {
-        // Cluster closer to center
-        x = 35 + Math.random() * 30; // 35-65vw
-        y = 60 + Math.random() * 12; // 60-72vh
-      } else {
-        // Normal spread
-        x = 12 + Math.random() * 76; // 12-88vw
-        y = 58 + Math.random() * 18; // 58-76vh
+      // Check deduplication
+      if (!shouldShowWhisper(recentWhisperIdsRef.current, whisperData.id)) {
+        if (DEBUG) console.log('[Whispers] Skipping duplicate:', whisperData.id);
+        return;
       }
 
-      const baseOpacity = isIdle ? 0.4 : isNearRemix ? 0.7 : 0.5;
+      // Calculate position based on remix proximity
+      const cms = countdownMsRef.current;
+      const isNearRemix = cms < 1800000;
+      let x: number, y: number;
+      if (isNearRemix) {
+        x = 35 + Math.random() * 30;
+        y = 60 + Math.random() * 12;
+      } else {
+        x = 12 + Math.random() * 76;
+        y = 58 + Math.random() * 18;
+      }
+
+      const idle = isIdleRef.current;
+      const baseOpacity = idle ? 0.4 : isNearRemix ? 0.7 : 0.5;
       const opacity = baseOpacity + Math.random() * 0.1 - 0.05;
 
       const newWhisper: ActiveWhisper = {
@@ -140,20 +156,44 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
         duration: 5 + Math.random() * 3,
       };
 
+      if (DEBUG) console.log('[Whispers] Adding:', newWhisper.id, newWhisper.text);
       setActiveWhispers(prev => [...prev, newWhisper]);
       
-      // Update recent IDs for deduplication (45s window)
+      // Update recent IDs for deduplication
       setRecentWhisperIds(prev => [...prev, whisperData.id].slice(-10));
       setTimeout(() => {
         setRecentWhisperIds(prev => prev.filter(id => id !== whisperData.id));
       }, 45000);
 
-      // Trigger ear glow
-      onWhisperAppear?.();
-    }, cadence);
+      // Remove this whisper after its lifetime
+      const lifetime = newWhisper.duration * 1000 + 800;
+      setTimeout(() => {
+        setActiveWhispers(prev => prev.filter(w => w.id !== newWhisper.id));
+      }, lifetime);
 
-    return () => clearInterval(interval);
-  }, [whisperPool, isIdle, countdownMs, isRemixSilence, hasShownRemixMessage, onWhisperAppear]);
+      onWhisperAppear?.();
+    };
+
+    const tick = () => {
+      const cadence = computeCadence();
+      if (DEBUG) console.log('[Whispers] Tick, cadence:', cadence, 'pool:', whisperPool.length, 'active:', activeWhispersRef.current.length);
+      
+      generateWhisper();
+      
+      setTimeout(() => {
+        if (!cancelled) tick();
+      }, cadence);
+    };
+
+    tick();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [whisperPool, isRemixSilence, hasShownRemixMessage, onWhisperAppear]);
+
+  // Determine if remix is imminent for visual styling
+  const isRemixImminent = countdownMs < 10000;
 
   return (
     <div 

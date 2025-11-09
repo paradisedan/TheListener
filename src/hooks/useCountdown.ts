@@ -28,9 +28,17 @@ export function useCountdown(targetHours: number = 13, targetMinutes: number = 2
     return () => clearInterval(timer);
   }, []);
 
+  const totalRemaining = () => {
+    const total = targetHours * 3600 + targetMinutes * 60 + targetSeconds;
+    const now = Math.floor(Date.now() / 1000);
+    const start = Math.floor(new Date().setHours(0, 0, 0, 0) / 1000);
+    const elapsed = now - start;
+    return total - (elapsed % total);
+  };
+
   return {
     display: timeData.display,
-    remainingSeconds: timeData.seconds,
-    remainingMs: timeData.seconds * 1000,
+    remainingSeconds: totalRemaining(),
+    remainingMs: totalRemaining() * 1000,
   };
 }
