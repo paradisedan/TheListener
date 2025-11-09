@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { PlayerBar } from '@/components/PlayerBar';
 import { PromptSection } from '@/components/PromptSection';
 import { AIDirectionPanel } from '@/components/AIDirectionPanel';
-import { DriftingContributors } from '@/components/DriftingContributors';
+import { Whispers } from '@/components/Whispers';
 import { MixHistory } from '@/components/MixHistory';
 import { VersionDrawer } from '@/components/VersionDrawer';
 import { TheListener } from '@/components/TheListener';
@@ -27,7 +27,10 @@ const Index = () => {
   const [keystrokePulse, setKeystrokePulse] = useState(0);
   const [listenerState, setListenerState] = useState<'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant'>('idle');
   const [waveformAmplitudes, setWaveformAmplitudes] = useState<number[]>(Array(40).fill(0.5));
-  const countdown = useCountdown();
+  const [whisperTrigger, setWhisperTrigger] = useState(0);
+  const countdownData = useCountdown();
+  const countdown = countdownData.display;
+  const countdownMs = countdownData.remainingMs;
   const currentVersion = mockVersions.length;
 
   // Handle idle state and listener state
@@ -123,6 +126,10 @@ const Index = () => {
     setSelectedVersion(version);
   };
 
+  const handleWhisperAppear = () => {
+    setWhisperTrigger(prev => prev + 1);
+  };
+
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
       {/* Idle darken overlay */}
@@ -177,8 +184,17 @@ const Index = () => {
           state={listenerState} 
           waveformAmplitudes={waveformAmplitudes}
           keystrokePulse={keystrokePulse}
+          whisperGlow={whisperTrigger}
         />
       </div>
+
+      {/* Ambient Whispers Layer */}
+      <Whispers
+        comments={comments}
+        countdownMs={countdownMs}
+        isIdle={isIdle}
+        onWhisperAppear={handleWhisperAppear}
+      />
 
       <PlayerBar version={currentVersion} countdown={countdown} />
       
@@ -201,8 +217,6 @@ const Index = () => {
       <div style={{ zIndex: 40 }}>
         <AIDirectionPanel />
       </div>
-      
-      <DriftingContributors users={mockUsers} comments={comments} />
       
       <MixHistory
         versions={mockVersions}

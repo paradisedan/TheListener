@@ -28,5 +28,9 @@ export function useCountdown(targetHours: number = 13, targetMinutes: number = 2
     return () => clearInterval(timer);
   }, []);
 
-  return timeData.display;
+  return {
+    display: timeData.display,
+    remainingSeconds: timeData.seconds,
+    remainingMs: timeData.seconds * 1000,
+  };
 }

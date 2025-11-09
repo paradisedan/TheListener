@@ -5,10 +5,12 @@ interface TheListenerProps {
   state: 'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant';
   waveformAmplitudes?: number[];
   keystrokePulse?: number;
+  whisperGlow?: number;
 }
 
-export function TheListener({ state, waveformAmplitudes = [], keystrokePulse = 0 }: TheListenerProps) {
+export function TheListener({ state, waveformAmplitudes = [], keystrokePulse = 0, whisperGlow = 0 }: TheListenerProps) {
   const [breathPhase, setBreathPhase] = useState(0);
+  const [whisperGlowActive, setWhisperGlowActive] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -16,6 +18,14 @@ export function TheListener({ state, waveformAmplitudes = [], keystrokePulse = 0
     }, 100);
     return () => clearInterval(interval);
   }, []);
+
+  // Handle whisper glow trigger
+  useEffect(() => {
+    if (whisperGlow > 0) {
+      setWhisperGlowActive(0.1); // +10% boost
+      setTimeout(() => setWhisperGlowActive(0), 300);
+    }
+  }, [whisperGlow]);
 
   // Calculate ear flicker from outer waveform bars
   const getEarFlicker = () => {
@@ -103,7 +113,7 @@ export function TheListener({ state, waveformAmplitudes = [], keystrokePulse = 0
               `M 200 400 Q ${150 + earTilt} 200 ${180 + earTilt} ${50 + earFlicker * 20} Q ${190 + earTilt} 20 200 50 Q 220 180 220 350`,
               "M 200 400 Q 150 200 180 50 Q 190 20 200 50 Q 220 180 220 350",
             ],
-            opacity: [0.4, 0.6, 0.4],
+            opacity: [0.4 + whisperGlowActive, 0.6 + whisperGlowActive, 0.4 + whisperGlowActive],
           }}
           transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity }}
         />
@@ -121,7 +131,7 @@ export function TheListener({ state, waveformAmplitudes = [], keystrokePulse = 0
               `M 400 400 Q ${450 - earTilt} 200 ${420 - earTilt} ${50 + earFlicker * 20} Q ${410 - earTilt} 20 400 50 Q 380 180 380 350`,
               "M 400 400 Q 450 200 420 50 Q 410 20 400 50 Q 380 180 380 350",
             ],
-            opacity: [0.4, 0.6, 0.4],
+            opacity: [0.4 + whisperGlowActive, 0.6 + whisperGlowActive, 0.4 + whisperGlowActive],
           }}
           transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity }}
         />
@@ -149,7 +159,7 @@ export function TheListener({ state, waveformAmplitudes = [], keystrokePulse = 0
           ry="120"
           fill="hsl(168 95% 82%)"
           animate={{
-            opacity: [0.05, 0.12, 0.05],
+            opacity: [0.05 + whisperGlowActive, 0.12 + whisperGlowActive, 0.05 + whisperGlowActive],
           }}
           transition={{ duration: 6, ease: 'easeInOut', repeat: Infinity }}
         />
