@@ -49,7 +49,7 @@ export function TheListener({ state, waveformAmplitude = 0, keystrokePulse = 0 }
           ? {
               opacity: [baseOpacity, 0.7, 0.6, baseOpacity],
               scale: [1, 1.12, 1.1, 1],
-              filter: ['blur(22px)', 'blur(12px)', 'blur(15px)', 'blur(22px)'],
+              filter: ['blur(22px)', 'blur(8px)', 'blur(10px)', 'blur(22px)'],
             }
           : state === 'rebirth'
           ? {
@@ -67,7 +67,7 @@ export function TheListener({ state, waveformAmplitude = 0, keystrokePulse = 0 }
           : state === 'focused'
           ? { duration: 0.4, ease: 'easeOut' }
           : state === 'typing'
-          ? { duration: 0.15, ease: 'easeOut' }
+          ? { duration: 0.5, ease: 'easeInOut' }
           : { duration: 10, ease: 'easeInOut', repeat: Infinity }
       }
     >

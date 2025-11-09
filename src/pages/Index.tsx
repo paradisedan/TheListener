@@ -89,7 +89,7 @@ const Index = () => {
 
   const handleKeystroke = () => {
     setKeystrokePulse(1);
-    setTimeout(() => setKeystrokePulse(0), 150);
+    setTimeout(() => setKeystrokePulse(0), 500);
   };
 
   // Add new comments periodically
