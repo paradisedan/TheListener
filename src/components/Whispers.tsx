@@ -82,9 +82,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
       const cms = countdownMsRef.current;
       const idle = isIdleRef.current;
       
-      if (cms < 1800000) return 3000; // <30min: 3s (more chill)
-      if (idle) return 12000; // Idle: 12s (very sparse)
-      return 6000; // Normal: 6s (ambient)
+      if (cms < 1800000) return 5000; // <30min: 5s (calm buildup)
+      if (idle) return 18000; // Idle: 18s (barely noticeable)
+      return 10000; // Normal: 10s (truly ambient)
     };
 
     const generateWhisper = () => {
@@ -113,7 +113,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
       }
       
       // Remove oldest if at max capacity
-      if (activeWhispersRef.current.length >= 5) {
+      if (activeWhispersRef.current.length >= 3) {
         setActiveWhispers(prev => prev.slice(1));
       }
 
@@ -143,15 +143,15 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
       }
 
       const idle = isIdleRef.current;
-      const baseOpacity = idle ? 0.4 : isNearRemix ? 0.7 : 0.5;
-      const opacity = baseOpacity + Math.random() * 0.1 - 0.05;
+      const baseOpacity = idle ? 0.25 : isNearRemix ? 0.5 : 0.35;
+      const opacity = baseOpacity + Math.random() * 0.08 - 0.04;
 
       const newWhisper: ActiveWhisper = {
         id: whisperData.id,
         text: whisperData.text,
         x,
         y,
-        opacity: Math.max(0.4, Math.min(0.7, opacity)),
+        opacity: Math.max(0.25, Math.min(0.5, opacity)),
         drift: 15 + Math.random() * 10,
         duration: 5 + Math.random() * 3,
       };
@@ -205,7 +205,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
         {activeWhispers.map((whisper) => (
           <motion.div
             key={whisper.id}
-            initial={{ opacity: 0, y: 10, filter: 'blur(3px)' }}
+            initial={{ opacity: 0, y: 5, filter: 'blur(3px)' }}
             animate={{ 
               opacity: whisper.opacity,
               y: -whisper.drift,
@@ -213,8 +213,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
             }}
             exit={{ opacity: 0, filter: 'blur(2px)' }}
             transition={{ 
-              duration: 0.6,
-              ease: 'easeInOut',
+              opacity: { duration: 1.8, ease: 'easeOut' },
+              y: { duration: 1.8, ease: 'easeOut' },
+              filter: { duration: 1.8, ease: 'easeOut' },
             }}
             style={{
               position: 'absolute',
