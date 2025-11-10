@@ -75,39 +75,6 @@ export function TheListener({
 
   return (
     <>
-      {/* Particle Burst Effect - Only during rebirth */}
-      {state === 'rebirth' && (
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 6 }}>
-          {particles.map((p) => (
-            <motion.div
-              key={p.id}
-              className="absolute rounded-full"
-              style={{
-                width: p.size,
-                height: p.size,
-                background: 'radial-gradient(circle, hsl(168 95% 82%) 0%, hsl(168 95% 82% / 0.4) 70%, transparent 100%)',
-                filter: 'blur(6px)',
-                mixBlendMode: 'screen',
-              }}
-              initial={{ scale: 0, opacity: 0, x: 0, y: 0 }}
-              animate={{
-                scale: [0, 1.2, 1, 0],
-                opacity: [0, 0.9, 0.7, 0],
-                x: Math.cos((p.angle * Math.PI) / 180) * p.distance,
-                y: Math.sin((p.angle * Math.PI) / 180) * p.distance,
-                rotate: [0, 45, 90],
-              }}
-              transition={{
-                duration: 4,
-                times: [0, 0.25, 0.6, 1],
-                delay: p.delay,
-                ease: 'easeOut',
-              }}
-            />
-          ))}
-        </div>
-      )}
-
       {/* Main Listener Container */}
       <motion.div
         className="fixed inset-0 flex items-center justify-center pointer-events-none"
