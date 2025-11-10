@@ -108,10 +108,10 @@ export function TheListener({
                 opacity: [0, 0.95, 0.85, 0, baseOpacity * muteOpacity],
                 scale: [0.95, 1.6, 1.65, 1.3, 1],
                 filter: [
-                  'blur(30px) hue-rotate(0deg) drop-shadow(0 0 0px hsl(168 95% 82%))', 
-                  'blur(4px) hue-rotate(45deg) brightness(2.0) drop-shadow(0 0 100px hsl(168 95% 82%))', 
-                  'blur(6px) hue-rotate(90deg) brightness(1.8) drop-shadow(0 0 80px hsl(168 95% 82%))',
-                  'blur(60px) hue-rotate(0deg) drop-shadow(0 0 40px hsl(168 95% 82%))',
+                  'blur(28px) hue-rotate(0deg) drop-shadow(0 0 0px hsl(168 95% 82%))', 
+                  'blur(20px) hue-rotate(30deg) brightness(1.9) drop-shadow(0 0 80px hsl(168 95% 82%))', 
+                  'blur(22px) hue-rotate(60deg) brightness(1.7) drop-shadow(0 0 60px hsl(168 95% 82%))',
+                  'blur(36px) hue-rotate(0deg) drop-shadow(0 0 20px hsl(168 95% 82%))',
                   'blur(22px)'
                 ],
               }
@@ -121,7 +121,7 @@ export function TheListener({
           state === 'submitting'
             ? { duration: 1.4, ease: 'easeInOut', times: [0, 0.3, 0.6, 1] }
             : state === 'rebirth'
-            ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
+            ? { duration: 4, ease: 'easeInOut', times: [0, 0.28, 0.55, 0.85, 1] }
             : state === 'focused'
             ? { duration: 0.4, ease: 'easeOut' }
             : state === 'typing'
@@ -150,7 +150,6 @@ export function TheListener({
               state === 'rebirth'
                 ? {
                     opacity: [0, 0.95, 0.9, 0, 0.4],
-                    filter: ['blur(0px)', 'blur(0px) drop-shadow(0 0 20px hsl(168 95% 82%))', 'blur(1px)', 'blur(10px)', 'blur(0px)'],
                   }
                 : whisperGlowActive > 0
                 ? {
@@ -186,7 +185,6 @@ export function TheListener({
               state === 'rebirth'
                 ? {
                     opacity: [0, 0.95, 0.9, 0, 0.4],
-                    filter: ['blur(0px)', 'blur(0px) drop-shadow(0 0 20px hsl(168 95% 82%))', 'blur(1px)', 'blur(10px)', 'blur(0px)'],
                   }
                 : whisperGlowActive > 0
                 ? {
