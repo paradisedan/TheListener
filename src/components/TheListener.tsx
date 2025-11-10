@@ -48,7 +48,7 @@ export function TheListener({
     return avgAmplitude * 1.2;
   };
 
-  const baseOpacity = state === 'dormant' ? 0.05 : 0.12;
+  const baseOpacity = state === 'dormant' ? 0.20 : 0.35;
   const earTilt = state === 'typing' || state === 'focused' ? -3 : 0;
   const earFlicker = getEarFlicker();
   const keystrokeBoost = keystrokePulse * 0.15;
@@ -118,14 +118,14 @@ export function TheListener({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           style={{
-            filter: state === 'rebirth' ? 'none' : 'blur(22px)',
+            filter: state === 'rebirth' ? 'none' : 'blur(14px)',
           }}
         >
           {/* Left ear - waveform reactive */}
           <motion.path
             d="M 200 400 Q 150 200 180 50 Q 190 20 200 50 Q 220 180 220 350"
             stroke={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
-            strokeWidth={state === 'rebirth' ? "6" : "4"}
+            strokeWidth={state === 'rebirth' ? "8" : "6"}
             fill="none"
             strokeLinecap="round"
             animate={
@@ -155,7 +155,7 @@ export function TheListener({
           <motion.path
             d="M 400 400 Q 450 200 420 50 Q 410 20 400 50 Q 380 180 380 350"
             stroke={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
-            strokeWidth={state === 'rebirth' ? "6" : "4"}
+            strokeWidth={state === 'rebirth' ? "8" : "6"}
             fill="none"
             strokeLinecap="round"
             animate={
@@ -188,7 +188,7 @@ export function TheListener({
             rx="120"
             ry="140"
             stroke={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
-            strokeWidth={state === 'rebirth' ? "5" : "3"}
+            strokeWidth={state === 'rebirth' ? "6" : "5"}
             fill="none"
             animate={
               state === 'rebirth'
