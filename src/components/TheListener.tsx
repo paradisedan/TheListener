@@ -75,6 +75,60 @@ export function TheListener({
 
   return (
     <>
+      {/* Particle Burst Effect - Only during rebirth */}
+      {state === 'rebirth' && (
+        <div className="fixed inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 6 }}>
+          {particles.map((p) => (
+            <motion.div
+              key={p.id}
+              className="absolute rounded-full"
+              style={{
+                width: p.size,
+                height: p.size,
+                background: 'radial-gradient(circle, hsl(168 95% 82%) 0%, hsl(168 95% 82% / 0.3) 70%, transparent 100%)',
+                filter: 'blur(22px)',
+                mixBlendMode: 'screen',
+              }}
+              initial={{ scale: 0, opacity: 0, x: 0, y: 0 }}
+              animate={{
+                scale: [0, 1.2, 1, 0],
+                opacity: [0, 0.5, 0.4, 0],
+                x: Math.cos((p.angle * Math.PI) / 180) * p.distance,
+                y: Math.sin((p.angle * Math.PI) / 180) * p.distance,
+                rotate: [0, 45, 90],
+              }}
+              transition={{
+                duration: 4,
+                times: [0, 0.28, 0.6, 1],
+                delay: p.delay,
+                ease: 'easeOut',
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Screen Flash at Rebirth Peak */}
+      {state === 'rebirth' && (
+        <motion.div
+          className="fixed inset-0 pointer-events-none"
+          style={{ 
+            zIndex: 7,
+            background: 'radial-gradient(circle, hsl(168 95% 82% / 0.3) 0%, transparent 70%)',
+          }}
+          initial={{ opacity: 0 }}
+          animate={{
+            opacity: [0, 0.15, 0],
+          }}
+          transition={{
+            duration: 0.4,
+            times: [0, 0.5, 1],
+            delay: 1.1,
+            ease: 'easeInOut',
+          }}
+        />
+      )}
+
       {/* Main Listener Container */}
       <motion.div
         className="fixed inset-0 flex items-center justify-center pointer-events-none"
