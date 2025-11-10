@@ -71,7 +71,7 @@ export function TheListener({
       Array.from({ length: 14 }, (_, i) => ({
         id: i,
         angle: (i * 360) / 14,
-        distance: 280 + Math.random() * 60,
+        distance: 900 + Math.random() * 100,
         delay: i * 0.04,
         size: 14 + Math.random() * 8,
       })),
@@ -95,7 +95,7 @@ export function TheListener({
               style={{
                 width: p.size,
                 height: p.size,
-                background: 'radial-gradient(circle, rgba(255,0,0,0.9) 0%, rgba(255,0,0,0.35) 70%, transparent 100%)',
+                background: 'radial-gradient(circle, hsl(168 95% 82% / 0.9) 0%, hsl(168 95% 82% / 0.35) 70%, transparent 100%)',
                 filter: 'blur(16px)',
                 mixBlendMode: 'normal',
               }}
@@ -125,7 +125,7 @@ export function TheListener({
           className="fixed inset-0 pointer-events-none"
           style={{ 
             zIndex: 10001,
-            background: 'radial-gradient(circle, rgba(255,0,0,0.2) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, hsl(168 95% 82% / 0.2) 0%, transparent 70%)',
           }}
           initial={{ opacity: 0 }}
           animate={{
