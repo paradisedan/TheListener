@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 
 interface TheListenerProps {
   state: 'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant';
@@ -84,9 +85,9 @@ export function TheListener({
 
   return (
     <>
-      {/* Particle Burst Effect - Only during rebirth */}
-      {state === 'rebirth' && (
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 100 }}>
+      {/* Particle Burst Effect - Rendered via Portal */}
+      {state === 'rebirth' && createPortal(
+        <div className="fixed inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 10000 }}>
           {particles.map((p) => (
             <motion.div
               key={p.id}
@@ -94,40 +95,41 @@ export function TheListener({
               style={{
                 width: p.size,
                 height: p.size,
-                background: 'radial-gradient(circle, hsl(168 95% 82%) 0%, hsl(168 95% 82% / 0.3) 70%, transparent 100%)',
-                filter: 'blur(22px)',
-                mixBlendMode: 'screen',
+                background: 'radial-gradient(circle, rgba(255,0,0,0.9) 0%, rgba(255,0,0,0.35) 70%, transparent 100%)',
+                filter: 'blur(16px)',
+                mixBlendMode: 'normal',
               }}
               initial={{ scale: 0, opacity: 0, x: 0, y: 0 }}
               animate={{
                 scale: [0, 1.2, 1, 0],
-                opacity: [0, 0.7, 0.6, 0],
+                opacity: [0, 0.9, 0.75, 0],
                 x: Math.cos((p.angle * Math.PI) / 180) * p.distance,
                 y: Math.sin((p.angle * Math.PI) / 180) * p.distance,
                 rotate: [0, 45, 90],
               }}
               transition={{
                 duration: 4,
-                times: [0, 0.28, 0.6, 1],
+                times: [0, 0.15, 0.6, 1],
                 delay: p.delay,
                 ease: 'easeOut',
               }}
             />
           ))}
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Screen Flash at Rebirth Peak */}
-      {state === 'rebirth' && (
+      {/* Screen Flash Overlay - Rendered via Portal */}
+      {state === 'rebirth' && createPortal(
         <motion.div
           className="fixed inset-0 pointer-events-none"
           style={{ 
-            zIndex: 101,
-            background: 'radial-gradient(circle, hsl(168 95% 82% / 0.3) 0%, transparent 70%)',
+            zIndex: 10001,
+            background: 'radial-gradient(circle, rgba(255,0,0,0.2) 0%, transparent 70%)',
           }}
           initial={{ opacity: 0 }}
           animate={{
-            opacity: [0, 0.25, 0],
+            opacity: [0, 0.2, 0],
           }}
           transition={{
             duration: 0.4,
@@ -135,7 +137,8 @@ export function TheListener({
             delay: 1.1,
             ease: 'easeInOut',
           }}
-        />
+        />,
+        document.body
       )}
 
       {/* Main Listener Container */}
