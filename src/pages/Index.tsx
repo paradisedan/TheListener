@@ -50,12 +50,12 @@ const Index = () => {
     const resetIdle = () => {
       setIsIdle(false);
       if (!isTyping) {
-        setListenerState('idle');
+        setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'idle');
       }
       clearTimeout(idleTimer);
       idleTimer = setTimeout(() => {
         setIsIdle(true);
-        setListenerState('dormant');
+        setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'dormant');
       }, 60000); // 60s for dormant
     };
 
@@ -65,7 +65,7 @@ const Index = () => {
 
     idleTimer = setTimeout(() => {
       setIsIdle(true);
-      setListenerState('dormant');
+      setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'dormant');
     }, 60000);
 
     return () => {
@@ -79,11 +79,11 @@ const Index = () => {
   // Update listener state based on focus and typing
   useEffect(() => {
     if (isTyping) {
-      setListenerState('typing');
+      setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'typing');
     } else if (isFocused && !isIdle) {
-      setListenerState('focused');
+      setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'focused');
     } else if (!isIdle) {
-      setListenerState('idle');
+      setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'idle');
     }
   }, [isTyping, isFocused, isIdle]);
 
@@ -182,7 +182,7 @@ const Index = () => {
       },
       onPause: () => {
         setIsPlaying(false);
-        setListenerState(prev => prev === 'typing' || prev === 'focused' ? prev : 'idle');
+        setListenerState(prev => prev === 'typing' || prev === 'focused' || prev === 'rebirth' || prev === 'submitting' ? prev : 'idle');
       },
       onSeek: () => {
         // Brief 300ms ear pulse
