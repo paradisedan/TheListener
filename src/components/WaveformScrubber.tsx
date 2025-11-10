@@ -123,22 +123,24 @@ export function WaveformScrubber({
 
   return (
     <motion.div
-      ref={containerRef}
-      className={`fixed inset-0 flex items-center justify-center select-none ${
-        isDragging ? 'cursor-grabbing' : 'cursor-grab'
-      }`}
+      className="fixed inset-0 flex items-center justify-center pointer-events-none"
       style={{ zIndex: 10 }}
       animate={{
         opacity: isIdle ? 0.1 : 0.05,
       }}
       transition={{ duration: 3 }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
     >
-      <div className="relative flex gap-1 items-end">
+      <div
+        ref={containerRef}
+        className={`relative flex gap-1 items-end select-none pointer-events-auto ${
+          isDragging ? 'cursor-grabbing' : 'cursor-grab'
+        }`}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
+      >
         {waveformAmplitudes.map((amplitude, i) => (
           <motion.div
             key={i}

@@ -12,10 +12,14 @@ export function AudioStartOverlay({ onStart }: AudioStartOverlayProps) {
       transition={{ duration: 1.5 }}
       className="fixed inset-0 bg-black/80 flex items-center justify-center cursor-pointer"
       style={{ zIndex: 100 }}
-      onClick={onStart}
+      onClick={(e) => {
+        e.currentTarget.style.pointerEvents = 'none';
+        onStart();
+      }}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
+          e.currentTarget.style.pointerEvents = 'none';
           onStart();
         }
       }}

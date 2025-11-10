@@ -288,6 +288,7 @@ const Index = () => {
       )}
       
       <motion.div
+        className="pointer-events-auto"
         style={{ zIndex: 40 }}
         animate={{
           opacity: isIdle ? 0.7 : 1,
