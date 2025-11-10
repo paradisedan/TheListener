@@ -65,59 +65,8 @@ export function TheListener({
   const audioBoost = audioPlaying ? 0.08 : 0;
   const muteOpacity = audioMuted ? 0.4 : 1;
 
-  // Generate particles for rebirth burst (memoized to prevent re-generation)
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 14 }, (_, i) => ({
-        id: i,
-        angle: (i * 360) / 14,
-        distance: 900 + Math.random() * 100,
-        delay: i * 0.04,
-        size: 14 + Math.random() * 8,
-      })),
-    []
-  );
-
-  // Debug log for rebirth state
-  if (state === 'rebirth') {
-    console.log('🌟 Rebirth rendering - particles and flash should be visible');
-  }
-
   return (
     <>
-      {/* Particle Burst Effect - Rendered via Portal */}
-      {state === 'rebirth' && createPortal(
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 10000 }}>
-          {particles.map((p) => (
-            <motion.div
-              key={p.id}
-              className="absolute rounded-full"
-              style={{
-                width: p.size,
-                height: p.size,
-                background: 'radial-gradient(circle, hsl(168 95% 82% / 0.9) 0%, hsl(168 95% 82% / 0.35) 70%, transparent 100%)',
-                filter: 'blur(16px)',
-                mixBlendMode: 'normal',
-              }}
-              initial={{ scale: 0, opacity: 0, x: 0, y: 0 }}
-              animate={{
-                scale: [0, 1.2, 1, 0],
-                opacity: [0, 0.9, 0.75, 0],
-                x: Math.cos((p.angle * Math.PI) / 180) * p.distance,
-                y: Math.sin((p.angle * Math.PI) / 180) * p.distance,
-                rotate: [0, 45, 90],
-              }}
-              transition={{
-                duration: 4,
-                times: [0, 0.15, 0.6, 1],
-                delay: p.delay,
-                ease: 'easeOut',
-              }}
-            />
-          ))}
-        </div>,
-        document.body
-      )}
 
       {/* Screen Flash Overlay - Rendered via Portal */}
       {state === 'rebirth' && createPortal(
