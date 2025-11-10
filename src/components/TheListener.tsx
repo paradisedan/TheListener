@@ -139,7 +139,7 @@ export function TheListener({
                     opacity: 0.7,
                   }
                 : {
-                    opacity: 0.4,
+                    opacity: 0.7,
                   }
             }
             transition={
@@ -169,7 +169,7 @@ export function TheListener({
                     opacity: 0.7,
                   }
                 : {
-                    opacity: 0.4,
+                    opacity: 0.7,
                   }
             }
             transition={
@@ -196,7 +196,7 @@ export function TheListener({
                     opacity: [0, 0.8, 0.75, 0, 0.3],
                   }
                 : {
-                    opacity: 0.3,
+                    opacity: 0.6,
                   }
             }
             transition={
