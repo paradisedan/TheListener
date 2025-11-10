@@ -81,9 +81,9 @@ export function TheListener({
               }
             : state === 'submitting'
             ? {
-                opacity: [baseOpacity * muteOpacity, 0.7 * muteOpacity, 0.6 * muteOpacity, baseOpacity * muteOpacity],
-                scale: [1, 1.12, 1.1, 1],
-                filter: ['blur(22px)', 'blur(8px)', 'blur(10px)', 'blur(22px)'],
+                opacity: [baseOpacity * muteOpacity, 0.85 * muteOpacity, 0.75 * muteOpacity, baseOpacity * muteOpacity],
+                scale: [1, 1.3, 1.25, 1],
+                filter: ['blur(14px)', 'blur(5px)', 'blur(7px)', 'blur(14px)'],
               }
             : state === 'rebirth'
             ? {
