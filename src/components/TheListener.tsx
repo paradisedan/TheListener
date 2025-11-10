@@ -20,16 +20,8 @@ export function TheListener({
   audioMuted = false,
   audioEventGlow = 0,
 }: TheListenerProps) {
-  const [breathPhase, setBreathPhase] = useState(0);
   const [whisperGlowActive, setWhisperGlowActive] = useState(0);
   const [audioGlowActive, setAudioGlowActive] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setBreathPhase((prev) => (prev + 0.1) % (Math.PI * 2));
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
 
   // Handle whisper glow trigger
   useEffect(() => {
@@ -57,7 +49,6 @@ export function TheListener({
   };
 
   const baseOpacity = state === 'dormant' ? 0.05 : 0.12;
-  const breathAmount = Math.sin(breathPhase) * 0.05;
   const earTilt = state === 'typing' || state === 'focused' ? -3 : 0;
   const earFlicker = getEarFlicker();
   const keystrokeBoost = keystrokePulse * 0.15;
