@@ -28,6 +28,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
   const [activeWhispers, setActiveWhispers] = useState<ActiveWhisper[]>([]);
   const [recentWhisperIds, setRecentWhisperIds] = useState<string[]>([]);
   const [isRemixSilence, setIsRemixSilence] = useState(false);
+  const [isRebirthPause, setIsRebirthPause] = useState(false);
   const [hasShownRemixMessage, setHasShownRemixMessage] = useState(false);
 
   // Refs to avoid dependency restarts
@@ -59,10 +60,17 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
   // Handle forced rebirth message trigger
   useEffect(() => {
     if (forceRebirthMessage > 0) {
-      if (DEBUG) console.log('[Whispers] 🌟 Force rebirth message triggered');
+      if (DEBUG) console.log('[Whispers] 🌟 Force rebirth message triggered - entering 10s pause');
+      setIsRebirthPause(true);
       setActiveWhispers([]);
       setHasShownRemixMessage(false);
-      justExitedSilenceRef.current = true;
+      
+      // Resume after 10s with forced message
+      setTimeout(() => {
+        if (DEBUG) console.log('[Whispers] Exiting rebirth pause');
+        setIsRebirthPause(false);
+        justExitedSilenceRef.current = true;
+      }, 10000);
     }
   }, [forceRebirthMessage]);
 
@@ -85,7 +93,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
 
   // Self-scheduling whisper generator
   useEffect(() => {
-    if (isRemixSilence) return;
+    if (isRemixSilence || isRebirthPause) return;
 
     let cancelled = false;
 
@@ -201,7 +209,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
     return () => {
       cancelled = true;
     };
-  }, [whisperPool, isRemixSilence, hasShownRemixMessage, onWhisperAppear]);
+  }, [whisperPool, isRemixSilence, isRebirthPause, hasShownRemixMessage, onWhisperAppear]);
 
   // Determine if remix is imminent for visual styling
   const isRemixImminent = countdownMs < 10000;
