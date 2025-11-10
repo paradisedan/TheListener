@@ -38,7 +38,7 @@ export function PlayerBar({ version, countdown, onForceEmergence }: PlayerBarPro
           v{version}
         </motion.div>
         
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-end gap-2">
           <motion.div 
             className="font-mono text-sm tracking-widest flicker"
             animate={{
@@ -64,8 +64,6 @@ export function PlayerBar({ version, countdown, onForceEmergence }: PlayerBarPro
             </motion.button>
           )}
         </div>
-        
-        <div className="w-[60px]" />
       </div>
     </motion.div>
   );
