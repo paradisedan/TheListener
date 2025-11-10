@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState, useMemo } from 'react';
-import { createPortal } from 'react-dom';
+import { useEffect, useState } from 'react';
 
 interface TheListenerProps {
   state: 'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant';
@@ -67,29 +66,6 @@ export function TheListener({
 
   return (
     <>
-
-      {/* Screen Flash Overlay - Rendered via Portal */}
-      {state === 'rebirth' && createPortal(
-        <motion.div
-          className="fixed inset-0 pointer-events-none"
-          style={{ 
-            zIndex: 10001,
-            background: 'radial-gradient(circle, hsl(168 95% 82% / 0.2) 0%, transparent 70%)',
-          }}
-          initial={{ opacity: 0 }}
-          animate={{
-            opacity: [0, 0.2, 0],
-          }}
-          transition={{
-            duration: 0.4,
-            times: [0, 0.5, 1],
-            delay: 1.1,
-            ease: 'easeInOut',
-          }}
-        />,
-        document.body
-      )}
-
       {/* Main Listener Container */}
       <motion.div
         className="fixed inset-0 flex items-center justify-center pointer-events-none"
