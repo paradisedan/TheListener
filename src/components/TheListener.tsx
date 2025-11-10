@@ -169,7 +169,7 @@ export function TheListener({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           style={{
-            filter: state === 'rebirth' ? 'blur(4px)' : 'blur(22px)',
+            filter: state === 'rebirth' ? 'none' : 'blur(22px)',
           }}
         >
           {/* Left ear - waveform reactive */}
