@@ -139,12 +139,7 @@ export function TheListener({
                     opacity: 0.7,
                   }
                 : {
-                    d: [
-                      "M 200 400 Q 150 200 180 50 Q 190 20 200 50 Q 220 180 220 350",
-                      `M 200 400 Q ${150 + earTilt} 200 ${180 + earTilt} ${50 + earFlicker * 20} Q ${190 + earTilt} 20 200 50 Q 220 180 220 350`,
-                      "M 200 400 Q 150 200 180 50 Q 190 20 200 50 Q 220 180 220 350",
-                    ],
-                    opacity: [0.4, 0.6, 0.4],
+                    opacity: 0.4,
                   }
             }
             transition={
@@ -152,7 +147,7 @@ export function TheListener({
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
                 : whisperGlowActive > 0
                 ? { duration: 0.15, ease: 'easeOut' }
-                : { duration: 2, ease: 'easeInOut', repeat: Infinity }
+                : {}
             }
           />
 
@@ -174,12 +169,7 @@ export function TheListener({
                     opacity: 0.7,
                   }
                 : {
-                    d: [
-                      "M 400 400 Q 450 200 420 50 Q 410 20 400 50 Q 380 180 380 350",
-                      `M 400 400 Q ${450 - earTilt} 200 ${420 - earTilt} ${50 + earFlicker * 20} Q ${410 - earTilt} 20 400 50 Q 380 180 380 350`,
-                      "M 400 400 Q 450 200 420 50 Q 410 20 400 50 Q 380 180 380 350",
-                    ],
-                    opacity: [0.4, 0.6, 0.4],
+                    opacity: 0.4,
                   }
             }
             transition={
@@ -187,7 +177,7 @@ export function TheListener({
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
                 : whisperGlowActive > 0
                 ? { duration: 0.15, ease: 'easeOut' }
-                : { duration: 2, ease: 'easeInOut', repeat: Infinity }
+                : {}
             }
           />
 
@@ -206,13 +196,13 @@ export function TheListener({
                     opacity: [0, 0.8, 0.75, 0, 0.3],
                   }
                 : {
-                    opacity: [0.3, 0.5, 0.3],
+                    opacity: 0.3,
                   }
             }
             transition={
               state === 'rebirth'
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
-                : { duration: 8, ease: 'easeInOut', repeat: Infinity }
+                : {}
             }
           />
 
@@ -229,13 +219,13 @@ export function TheListener({
                     opacity: [0, 0.5, 0.45, 0, 0.05],
                   }
                 : {
-                    opacity: [0.05 + whisperGlowActive, 0.12 + whisperGlowActive, 0.05 + whisperGlowActive],
+                    opacity: 0.05 + whisperGlowActive,
                   }
             }
             transition={
               state === 'rebirth'
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
-                : { duration: 6, ease: 'easeInOut', repeat: Infinity }
+                : {}
             }
           />
 
