@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 interface TheListenerProps {
   state: 'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant';
@@ -64,20 +64,29 @@ export function TheListener({
   const audioBoost = audioPlaying ? 0.08 : 0;
   const muteOpacity = audioMuted ? 0.4 : 1;
 
-  // Generate particles for rebirth burst
-  const particles = Array.from({ length: 14 }, (_, i) => ({
-    id: i,
-    angle: (i * 360) / 14,
-    distance: 280 + Math.random() * 60,
-    delay: i * 0.04,
-    size: 14 + Math.random() * 8,
-  }));
+  // Generate particles for rebirth burst (memoized to prevent re-generation)
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 14 }, (_, i) => ({
+        id: i,
+        angle: (i * 360) / 14,
+        distance: 280 + Math.random() * 60,
+        delay: i * 0.04,
+        size: 14 + Math.random() * 8,
+      })),
+    []
+  );
+
+  // Debug log for rebirth state
+  if (state === 'rebirth') {
+    console.log('🌟 Rebirth rendering - particles and flash should be visible');
+  }
 
   return (
     <>
       {/* Particle Burst Effect - Only during rebirth */}
       {state === 'rebirth' && (
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 6 }}>
+        <div className="fixed inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 100 }}>
           {particles.map((p) => (
             <motion.div
               key={p.id}
@@ -92,7 +101,7 @@ export function TheListener({
               initial={{ scale: 0, opacity: 0, x: 0, y: 0 }}
               animate={{
                 scale: [0, 1.2, 1, 0],
-                opacity: [0, 0.5, 0.4, 0],
+                opacity: [0, 0.7, 0.6, 0],
                 x: Math.cos((p.angle * Math.PI) / 180) * p.distance,
                 y: Math.sin((p.angle * Math.PI) / 180) * p.distance,
                 rotate: [0, 45, 90],
@@ -113,12 +122,12 @@ export function TheListener({
         <motion.div
           className="fixed inset-0 pointer-events-none"
           style={{ 
-            zIndex: 7,
+            zIndex: 101,
             background: 'radial-gradient(circle, hsl(168 95% 82% / 0.3) 0%, transparent 70%)',
           }}
           initial={{ opacity: 0 }}
           animate={{
-            opacity: [0, 0.15, 0],
+            opacity: [0, 0.25, 0],
           }}
           transition={{
             duration: 0.4,
