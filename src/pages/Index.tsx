@@ -37,6 +37,7 @@ const Index = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [audioEventGlow, setAudioEventGlow] = useState(0);
+  const [rebirthTrigger, setRebirthTrigger] = useState(0);
   const countdownData = useCountdown();
   const countdown = countdownData.display;
   const countdownMs = countdownData.remainingMs;
@@ -159,6 +160,9 @@ const Index = () => {
   const handleForceEmergence = () => {
     console.log('🌟 Forcing emergence sequence...');
     setListenerState('rebirth');
+    
+    // Trigger rebirth whisper message
+    setRebirthTrigger(prev => prev + 1);
     
     // Reset to idle after rebirth animation completes (4s duration from TheListener)
     setTimeout(() => {
@@ -288,6 +292,7 @@ const Index = () => {
         countdownMs={countdownMs}
         isIdle={isIdle}
         onWhisperAppear={handleWhisperAppear}
+        forceRebirthMessage={rebirthTrigger}
       />
 
       <PlayerBar version={currentVersion} countdown={countdown} onForceEmergence={handleForceEmergence} />

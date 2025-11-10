@@ -94,9 +94,15 @@ export function TheListener({
             }
           : state === 'rebirth'
           ? {
-              opacity: [0, 1 * muteOpacity, 0, baseOpacity * muteOpacity],
-              scale: [1, 1.15, 1.15, 1],
-              filter: ['blur(22px)', 'blur(0px)', 'blur(50px)', 'blur(22px)'],
+              opacity: [0, 0.95 * muteOpacity, 0.85 * muteOpacity, 0, baseOpacity * muteOpacity],
+              scale: [0.95, 1.35, 1.4, 1.2, 1],
+              filter: [
+                'blur(30px) hue-rotate(0deg)', 
+                'blur(0px) hue-rotate(45deg) brightness(1.5)', 
+                'blur(2px) hue-rotate(90deg) brightness(1.3)',
+                'blur(60px) hue-rotate(0deg)',
+                'blur(22px)'
+              ],
             }
           : {}
       }
@@ -104,7 +110,7 @@ export function TheListener({
         state === 'submitting'
           ? { duration: 1.4, ease: 'easeInOut', times: [0, 0.3, 0.6, 1] }
           : state === 'rebirth'
-          ? { duration: 4, ease: 'easeInOut', times: [0, 0.2, 0.6, 1] }
+          ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
           : state === 'focused'
           ? { duration: 0.4, ease: 'easeOut' }
           : state === 'typing'

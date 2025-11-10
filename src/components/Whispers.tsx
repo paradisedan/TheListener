@@ -8,6 +8,7 @@ interface WhispersProps {
   countdownMs: number;
   isIdle: boolean;
   onWhisperAppear?: () => void;
+  forceRebirthMessage?: number; // Trigger counter for forced rebirth message
 }
 
 interface ActiveWhisper {
@@ -23,7 +24,7 @@ interface ActiveWhisper {
 const FORCED_REMIX_TEXT = 'we begin again…';
 const DEBUG = true; // Set to false to disable logging
 
-export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: WhispersProps) {
+export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, forceRebirthMessage = 0 }: WhispersProps) {
   const [activeWhispers, setActiveWhispers] = useState<ActiveWhisper[]>([]);
   const [recentWhisperIds, setRecentWhisperIds] = useState<string[]>([]);
   const [isRemixSilence, setIsRemixSilence] = useState(false);
@@ -54,6 +55,16 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
     countdownMsRef.current = countdownMs;
     isIdleRef.current = isIdle;
   });
+
+  // Handle forced rebirth message trigger
+  useEffect(() => {
+    if (forceRebirthMessage > 0) {
+      if (DEBUG) console.log('[Whispers] 🌟 Force rebirth message triggered');
+      setActiveWhispers([]);
+      setHasShownRemixMessage(false);
+      justExitedSilenceRef.current = true;
+    }
+  }, [forceRebirthMessage]);
 
   // Handle remix silence at T=0
   useEffect(() => {
@@ -96,9 +107,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear }: Whi
           text: FORCED_REMIX_TEXT,
           x: 50,
           y: 65,
-          opacity: 0.5,
-          drift: 20,
-          duration: 6,
+          opacity: 0.75,
+          drift: 30,
+          duration: 8,
         };
         setActiveWhispers(prev => [...prev.slice(-3), forcedWhisper]);
         setHasShownRemixMessage(true);
