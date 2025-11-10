@@ -249,9 +249,9 @@ const Index = () => {
         className="fixed inset-0 bg-black pointer-events-none"
         style={{ zIndex: 15 }}
         animate={{
-          opacity: isIdle ? 0.5 : 0,
+          opacity: listenerState === 'rebirth' ? 0 : (isIdle ? 0.5 : 0),
         }}
-        transition={{ duration: 4 }}
+        transition={{ duration: listenerState === 'rebirth' ? 0.3 : 4 }}
       />
       
       {/* Central glow */}

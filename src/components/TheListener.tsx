@@ -94,7 +94,7 @@ export function TheListener({
             }
           : state === 'rebirth'
           ? {
-              opacity: [0, 0.95 * muteOpacity, 0.85 * muteOpacity, 0, baseOpacity * muteOpacity],
+              opacity: [0, 0.95, 0.85, 0, baseOpacity * muteOpacity], // Rebirth ignores mute for visibility
               scale: [0.95, 1.35, 1.4, 1.2, 1],
               filter: [
                 'blur(30px) hue-rotate(0deg)', 
