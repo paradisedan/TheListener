@@ -156,6 +156,16 @@ const Index = () => {
     setAudioEventGlow(prev => prev + 1);
   };
 
+  const handleForceEmergence = () => {
+    console.log('🌟 Forcing emergence sequence...');
+    setListenerState('rebirth');
+    
+    // Reset to idle after rebirth animation completes (4s duration from TheListener)
+    setTimeout(() => {
+      setListenerState('idle');
+    }, 4000);
+  };
+
   // Initialize audio controller
   useEffect(() => {
     const controller = createAudioController({
@@ -280,7 +290,7 @@ const Index = () => {
         onWhisperAppear={handleWhisperAppear}
       />
 
-      <PlayerBar version={currentVersion} countdown={countdown} />
+      <PlayerBar version={currentVersion} countdown={countdown} onForceEmergence={handleForceEmergence} />
 
       {/* Transport controls */}
       {audioController && !audioNeedsStart && (

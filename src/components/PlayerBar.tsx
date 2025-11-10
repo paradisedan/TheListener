@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 interface PlayerBarProps {
   version: number;
   countdown: string;
+  onForceEmergence?: () => void;
 }
 
-export function PlayerBar({ version, countdown }: PlayerBarProps) {
+export function PlayerBar({ version, countdown, onForceEmergence }: PlayerBarProps) {
   const [prevMinute, setPrevMinute] = useState('');
   const [isMinuteChange, setIsMinuteChange] = useState(false);
 
@@ -37,18 +38,34 @@ export function PlayerBar({ version, countdown }: PlayerBarProps) {
           v{version}
         </motion.div>
         
-        <motion.div 
-          className="font-mono text-sm tracking-widest flicker"
-          animate={{
-            opacity: isMinuteChange ? [0.4, 0.1, 0.4] : 0.4,
-          }}
-          transition={{
-            duration: isMinuteChange ? 2 : 0,
-            ease: 'easeInOut',
-          }}
-        >
-          next emergence in {countdown}
-        </motion.div>
+        <div className="flex flex-col items-center gap-2">
+          <motion.div 
+            className="font-mono text-sm tracking-widest flicker"
+            animate={{
+              opacity: isMinuteChange ? [0.4, 0.1, 0.4] : 0.4,
+            }}
+            transition={{
+              duration: isMinuteChange ? 2 : 0,
+              ease: 'easeInOut',
+            }}
+          >
+            next emergence in {countdown}
+          </motion.div>
+
+          {onForceEmergence && (
+            <motion.button
+              onClick={onForceEmergence}
+              className="font-mono text-xs tracking-wider opacity-20 hover:opacity-40 transition-opacity duration-300 border-b border-white/10 hover:border-white/30"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.2 }}
+              transition={{ delay: 1, duration: 2 }}
+            >
+              force emergence
+            </motion.button>
+          )}
+        </div>
+        
+        <div className="w-[60px]" />
       </div>
     </motion.div>
   );
