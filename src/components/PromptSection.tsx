@@ -69,12 +69,12 @@ export function PromptSection({ onTyping, onSubmit, onFocus, onBlur, onKeystroke
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh]">
+    <div className="flex flex-col items-center justify-center min-h-[45vh] md:min-h-[60vh]">
       <motion.h1 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 2, delay: 0.5 }}
-        className="text-6xl md:text-7xl lg:text-8xl font-serif font-light text-center mb-16 leading-tight glow-text"
+        className="text-3xl md:text-5xl lg:text-7xl xl:text-8xl font-serif font-light text-center mb-8 md:mb-16 leading-tight glow-text"
         style={{ letterSpacing: '0.1em', textShadow: '0 0 40px hsl(168 95% 82% / 0.2)' }}
       >
         what should the song do next?
@@ -84,7 +84,7 @@ export function PromptSection({ onTyping, onSubmit, onFocus, onBlur, onKeystroke
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 2, delay: 1 }}
-        className="relative w-full max-w-3xl"
+        className="relative w-full max-w-xl md:max-w-2xl lg:max-w-3xl px-4 md:px-0"
       >
         <AnimatePresence>
           {isDissolving && (
@@ -147,7 +147,7 @@ export function PromptSection({ onTyping, onSubmit, onFocus, onBlur, onKeystroke
           onKeyPress={handleKeyPress}
           onKeyDown={handleKeyDown}
           placeholder="introduce a subtle bassline... shift to minor key..."
-          className={`w-full bg-transparent border-0 border-b border-foreground/10 focus:border-foreground/30 outline-none text-2xl font-light text-center py-4 px-0 transition-all duration-1000 placeholder:text-muted-foreground/20 placeholder:font-light placeholder:transition-opacity placeholder:duration-1000 ${showPlaceholder ? '' : 'placeholder:opacity-0'}`}
+          className={`w-full bg-transparent border-0 border-b border-foreground/10 focus:border-foreground/30 outline-none text-base md:text-xl lg:text-2xl font-light text-center py-4 px-0 transition-all duration-1000 placeholder:text-muted-foreground/20 placeholder:font-light placeholder:transition-opacity placeholder:duration-1000 ${showPlaceholder ? '' : 'placeholder:opacity-0'}`}
           style={{ caretColor: 'hsl(168 95% 82%)' }}
           disabled={isDissolving}
         />

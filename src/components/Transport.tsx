@@ -40,7 +40,7 @@ export function Transport({ audioController, className = '' }: TransportProps) {
 
   return (
     <motion.div
-      className={`fixed bottom-[20%] left-1/2 -translate-x-1/2 flex items-center gap-4 ${className}`}
+      className={`fixed bottom-[12%] md:bottom-[20%] left-1/2 -translate-x-1/2 flex items-center gap-2 md:gap-4 ${className}`}
       style={{ zIndex: 50 }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -57,7 +57,7 @@ export function Transport({ audioController, className = '' }: TransportProps) {
         aria-label="Skip backward 5 seconds"
         aria-keyshortcuts="ArrowLeft"
       >
-        <SkipBack size={20} />
+        <SkipBack className="w-4 h-4 md:w-5 md:h-5" />
       </button>
 
       {/* Play/Pause */}
@@ -73,7 +73,7 @@ export function Transport({ audioController, className = '' }: TransportProps) {
         aria-pressed={isPlaying}
         aria-keyshortcuts="Space"
       >
-        {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+        {isPlaying ? <Pause className="w-5 h-5 md:w-6 md:h-6" /> : <Play className="w-5 h-5 md:w-6 md:h-6" />}
       </button>
 
       {/* Skip Forward */}
@@ -85,7 +85,7 @@ export function Transport({ audioController, className = '' }: TransportProps) {
         aria-label="Skip forward 5 seconds"
         aria-keyshortcuts="ArrowRight"
       >
-        <SkipForward size={20} />
+        <SkipForward className="w-4 h-4 md:w-5 md:h-5" />
       </button>
 
       {/* Mute */}
@@ -96,12 +96,12 @@ export function Transport({ audioController, className = '' }: TransportProps) {
         }}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        className="transport-button text-primary hover:text-primary/80 focus-visible:text-primary/80 ml-2"
+        className="transport-button text-primary hover:text-primary/80 focus-visible:text-primary/80 ml-1 md:ml-2"
         aria-label={isMuted ? 'Unmute' : 'Mute'}
         aria-pressed={isMuted}
         aria-keyshortcuts="m"
       >
-        {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+        {isMuted ? <VolumeX className="w-4 h-4 md:w-5 md:h-5" /> : <Volume2 className="w-4 h-4 md:w-5 md:h-5" />}
       </button>
     </motion.div>
   );
