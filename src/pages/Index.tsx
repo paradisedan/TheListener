@@ -263,6 +263,16 @@ const Index = () => {
         }}
         transition={{ duration: 3 }}
       />
+
+      {/* Subtle radial vignette */}
+      <div 
+        className="fixed inset-0 pointer-events-none"
+        style={{ 
+          zIndex: 8,
+          background: 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.12) 100%)',
+          opacity: 0.15
+        }}
+      />
       
       {/* Interactive waveform visualization with scrubbing */}
       <WaveformScrubber

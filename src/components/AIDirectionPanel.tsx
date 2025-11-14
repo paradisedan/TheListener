@@ -140,24 +140,24 @@ export function AIDirectionPanel({ comments, countdownMs }: AIDirectionPanelProp
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 3, delay: 2 }}
-      className="fixed bottom-16 md:bottom-24 left-0 right-0 px-4 md:px-8"
+      className="fixed bottom-[120px] md:bottom-[140px] left-0 right-0 px-4 md:px-8"
     >
       <div className="container mx-auto max-w-4xl">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <p className="text-xs font-mono tracking-wide opacity-50">
+        <div className="flex flex-col items-center gap-6 md:gap-8 text-center">
+          <p className="text-xs font-mono tracking-wide" style={{ opacity: 0.5 }}>
             direction:
           </p>
           <AnimatePresence mode="wait">
             <motion.p 
               key={currentSummary}
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.7 }}
+              animate={{ opacity: 0.8 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
-              className="text-sm md:text-base font-mono tracking-wider leading-relaxed max-w-2xl px-4"
+              className="text-[15px] md:text-[16px] font-mono tracking-wider leading-[1.35] max-w-[80%] px-4 truncate"
               style={{ 
                 letterSpacing: '0.1em',
-                color: 'rgba(255, 255, 255, 0.7)'
+                color: 'rgba(255, 255, 255, 0.8)'
               }}
             >
               {currentSummary}

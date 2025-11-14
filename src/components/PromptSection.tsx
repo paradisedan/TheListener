@@ -69,12 +69,12 @@ export function PromptSection({ onTyping, onSubmit, onFocus, onBlur, onKeystroke
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[45vh] md:min-h-[60vh]">
+    <div className="flex flex-col items-center justify-center min-h-[45vh] md:min-h-[60vh] pb-12 md:pb-16">
       <motion.h1 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 2, delay: 0.5 }}
-        className="text-3xl md:text-5xl lg:text-7xl xl:text-8xl font-serif font-light text-center mb-8 md:mb-16 leading-tight glow-text"
+        className="text-[26px] sm:text-3xl md:text-5xl lg:text-7xl xl:text-8xl font-serif font-light text-center mb-8 md:mb-16 leading-tight glow-text"
         style={{ letterSpacing: '0.1em', textShadow: '0 0 40px hsl(168 95% 82% / 0.2)' }}
       >
         what should the song do next?

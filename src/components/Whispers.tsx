@@ -114,8 +114,8 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
           id: `remix-${Date.now()}`,
           text: FORCED_REMIX_TEXT,
           x: 50,
-          y: 65,
-          opacity: 0.75,
+          y: 70,
+          opacity: 0.4,
           drift: 30,
           duration: 8,
         };
@@ -155,22 +155,22 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
       let x: number, y: number;
       if (isNearRemix) {
         x = 35 + Math.random() * 30;
-        y = 60 + Math.random() * 12;
+        y = 65 + Math.random() * 15;
       } else {
         x = 12 + Math.random() * 76;
-        y = 58 + Math.random() * 18;
+        y = 65 + Math.random() * 20;
       }
 
       const idle = isIdleRef.current;
-      const baseOpacity = idle ? 0.25 : isNearRemix ? 0.5 : 0.35;
-      const opacity = baseOpacity + Math.random() * 0.08 - 0.04;
+      const baseOpacity = idle ? 0.25 : isNearRemix ? 0.4 : 0.35;
+      const opacity = baseOpacity + Math.random() * 0.04 - 0.02;
 
       const newWhisper: ActiveWhisper = {
         id: whisperData.id,
         text: whisperData.text,
         x,
         y,
-        opacity: Math.max(0.25, Math.min(0.5, opacity)),
+        opacity: Math.max(0.25, Math.min(0.4, opacity)),
         drift: 15 + Math.random() * 10,
         duration: 12 + Math.random() * 2,
       };
@@ -251,9 +251,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
                 ease: 'easeInOut',
                 repeat: Infinity,
               }}
-              className={`font-mono text-[15px] tracking-[0.06em] ${
-                isRemixImminent ? 'text-white' : 'text-white/60'
-              }`}
+              className="font-mono text-[13px] md:text-[14px] tracking-[0.06em] text-white/40"
               style={isRemixImminent ? { mixBlendMode: 'screen' } : {}}
             >
               {whisper.text}
