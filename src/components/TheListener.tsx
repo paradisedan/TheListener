@@ -48,11 +48,11 @@ export function TheListener({
     return avgAmplitude * 1.2;
   };
 
-  const baseOpacity = state === 'dormant' ? 0.20 : 0.35;
+  const baseOpacity = state === 'dormant' ? 0.30 : 0.50;
   const earTilt = state === 'typing' || state === 'focused' ? -3 : 0;
   const earFlicker = getEarFlicker();
   const keystrokeBoost = keystrokePulse * 0.15;
-  const audioBoost = audioPlaying ? 0.08 : 0;
+  const audioBoost = audioPlaying ? 0.20 : 0;
   const muteOpacity = audioMuted ? 0.4 : 1;
 
   return (
