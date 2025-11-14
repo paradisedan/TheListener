@@ -71,13 +71,13 @@ export function TheListener({
             ? {
                 opacity: (baseOpacity + 0.1 + audioBoost + audioGlowActive) * muteOpacity,
                 scale: 1.04,
-                filter: 'blur(20px)',
+                filter: 'blur(15px)',
               }
             : state === 'typing'
             ? {
                 opacity: (baseOpacity + 0.12 + keystrokeBoost + audioBoost + audioGlowActive) * muteOpacity,
                 scale: 1.05 + keystrokeBoost * 0.3,
-                filter: 'blur(19px)',
+                filter: 'blur(14px)',
               }
             : state === 'submitting'
             ? {
@@ -135,10 +135,10 @@ export function TheListener({
                 : whisperGlowActive > 0
                 ? {
                     d: `M 200 400 Q ${150 + earTilt} 200 ${180 + earTilt} ${50 + earFlicker * 20} Q ${190 + earTilt} 20 200 50 Q 220 180 220 350`,
-                    opacity: 0.7,
+                    opacity: 0.85,
                   }
                 : {
-                    opacity: 0.7,
+                    opacity: 0.85,
                   }
             }
             transition={
@@ -165,10 +165,10 @@ export function TheListener({
                 : whisperGlowActive > 0
                 ? {
                     d: `M 400 400 Q ${450 - earTilt} 200 ${420 - earTilt} ${50 + earFlicker * 20} Q ${410 - earTilt} 20 400 50 Q 380 180 380 350`,
-                    opacity: 0.7,
+                    opacity: 0.85,
                   }
                 : {
-                    opacity: 0.7,
+                    opacity: 0.85,
                   }
             }
             transition={
