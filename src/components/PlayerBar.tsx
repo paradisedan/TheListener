@@ -31,7 +31,7 @@ export function PlayerBar({ version, countdown, onForceEmergence }: PlayerBarPro
     >
       <div className="container mx-auto flex items-center justify-between">
         <motion.div 
-          className="font-mono text-[10px] md:text-xs opacity-30 tracking-wider"
+          className="font-mono text-[10px] md:text-xs opacity-50 tracking-wider"
           animate={{ opacity: [0.3, 0.4, 0.3] }}
           transition={{ duration: 4, repeat: Infinity }}
         >
@@ -41,9 +41,9 @@ export function PlayerBar({ version, countdown, onForceEmergence }: PlayerBarPro
         <div className="flex flex-col items-end gap-1 md:gap-2">
           <motion.div 
             className="font-mono text-xs md:text-sm tracking-wider md:tracking-widest flicker"
-            animate={{
-              opacity: isMinuteChange ? [0.4, 0.1, 0.4] : 0.4,
-            }}
+          animate={{
+            opacity: isMinuteChange ? [0.6, 0.3, 0.6] : 0.6,
+          }}
             transition={{
               duration: isMinuteChange ? 2 : 0,
               ease: 'easeInOut',
@@ -55,7 +55,7 @@ export function PlayerBar({ version, countdown, onForceEmergence }: PlayerBarPro
           {onForceEmergence && (
             <motion.button
               onClick={onForceEmergence}
-              className="font-mono text-xs tracking-wider opacity-20 hover:opacity-40 transition-opacity duration-300 border-b border-white/10 hover:border-white/30"
+              className="font-mono text-xs tracking-wider opacity-30 hover:opacity-60 transition-opacity duration-300 border-b border-white/10 hover:border-white/30"
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.2 }}
               transition={{ delay: 1, duration: 2 }}
