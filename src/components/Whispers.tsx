@@ -82,12 +82,12 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
       setActiveWhispers([]);
       setHasShownRemixMessage(false);
       
-      // Resume after 2s with forced message
+      // Resume after 10s with forced message
       setTimeout(() => {
         if (DEBUG) console.log('[Whispers] Exiting remix silence');
         setIsRemixSilence(false);
         justExitedSilenceRef.current = true;
-      }, 2000);
+      }, 10000);
     }
   }, [countdownMs, isRemixSilence]);
 
@@ -119,7 +119,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
           drift: 30,
           duration: 8,
         };
-        setActiveWhispers(prev => [...prev.slice(-3), forcedWhisper]);
+        setActiveWhispers(prev => [...prev.slice(-4), forcedWhisper]);
         setHasShownRemixMessage(true);
         justExitedSilenceRef.current = false;
         onWhisperAppear?.();
@@ -131,8 +131,8 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
         return;
       }
       
-      // Remove oldest if at max capacity
-      if (activeWhispersRef.current.length >= 3) {
+      // Remove oldest if at max capacity (max 5 whispers)
+      if (activeWhispersRef.current.length >= 5) {
         setActiveWhispers(prev => prev.slice(1));
       }
 
