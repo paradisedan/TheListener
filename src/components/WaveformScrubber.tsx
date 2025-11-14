@@ -126,7 +126,7 @@ export function WaveformScrubber({
       className="fixed inset-0 flex items-center justify-center pointer-events-none"
       style={{ zIndex: 10 }}
       animate={{
-        opacity: isIdle ? 0.1 : 0.05,
+        opacity: isIdle ? 0.25 : 0.15,
       }}
       transition={{ duration: 3 }}
     >
@@ -144,7 +144,7 @@ export function WaveformScrubber({
         {waveformAmplitudes.map((amplitude, i) => (
           <motion.div
             key={i}
-            className="w-0.5 md:w-1 bg-primary/30 rounded-full"
+            className="w-0.5 md:w-1 bg-primary/50 rounded-full"
             animate={{
               height: `${amplitude * 50 + 16}px`,
               opacity: isDragging ? 0.4 : 1,

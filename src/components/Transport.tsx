@@ -44,8 +44,12 @@ export function Transport({ audioController, className = '' }: TransportProps) {
       style={{ zIndex: 50 }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: isVisible ? (prefersReducedTransparency ? 1 : 0.6) : 0 }}
+      initial={{ opacity: 0.3 }}
+      animate={{ 
+        opacity: isVisible 
+          ? (prefersReducedTransparency ? 1 : 0.8)
+          : (prefersReducedTransparency ? 0.5 : 0.3)
+      }}
       transition={{ duration: prefersReducedMotion ? 0 : 1, ease: 'easeInOut' }}
     >
       {/* Skip Back */}
