@@ -132,7 +132,7 @@ export function WaveformScrubber({
     >
       <div
         ref={containerRef}
-        className={`relative flex gap-1 items-end select-none pointer-events-auto ${
+        className={`relative flex gap-0.5 md:gap-1 items-end select-none pointer-events-auto min-h-[44px] ${
           isDragging ? 'cursor-grabbing' : 'cursor-grab'
         }`}
         onMouseDown={handleMouseDown}
@@ -144,9 +144,9 @@ export function WaveformScrubber({
         {waveformAmplitudes.map((amplitude, i) => (
           <motion.div
             key={i}
-            className="w-1 bg-primary/30 rounded-full"
+            className="w-0.5 md:w-1 bg-primary/30 rounded-full"
             animate={{
-              height: `${amplitude * 60 + 20}px`,
+              height: `${amplitude * 50 + 16}px`,
               opacity: isDragging ? 0.4 : 1,
             }}
             transition={{

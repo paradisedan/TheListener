@@ -112,11 +112,10 @@ export function TheListener({
         }
       >
         <svg
-          width="600"
-          height="800"
           viewBox="0 0 600 800"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          className="w-[280px] h-[373px] md:w-[350px] md:h-[467px] lg:w-[420px] lg:h-[560px]"
           style={{
             filter: state === 'rebirth' ? 'none' : 'blur(14px)',
           }}
