@@ -25,6 +25,12 @@ export function AIDirectionPanel({ comments, countdownMs }: AIDirectionPanelProp
   const wasRemixRef = useRef(false);
   const updateTimerRef = useRef<NodeJS.Timeout>();
   const hasInitializedRef = useRef(false);
+  const commentsRef = useRef(comments);
+
+  // Keep comments ref up to date
+  useEffect(() => {
+    commentsRef.current = comments;
+  }, [comments]);
 
   // Analyze comments and generate summary
   const generateSummary = (recentComments: Comment[]): string => {
@@ -65,12 +71,10 @@ export function AIDirectionPanel({ comments, countdownMs }: AIDirectionPanelProp
     if (DEBUG) console.log(`[AIDirection] Next update in ${Math.round(randomInterval / 1000)}s`);
     
     updateTimerRef.current = setTimeout(() => {
-      if (!isRemix) {
-        const newSummary = generateSummary(comments);
-        if (DEBUG) console.log(`[AIDirection] Updating summary:`, newSummary);
-        setCurrentSummary(newSummary);
-        scheduleNextUpdate();
-      }
+      const newSummary = generateSummary(commentsRef.current);
+      if (DEBUG) console.log(`[AIDirection] Updating summary:`, newSummary);
+      setCurrentSummary(newSummary);
+      scheduleNextUpdate();
     }, randomInterval);
   };
 
@@ -95,7 +99,7 @@ export function AIDirectionPanel({ comments, countdownMs }: AIDirectionPanelProp
       const resumeDelay = 10000 + Math.random() * 5000;
       setTimeout(() => {
         setShowPostRemix(false);
-        setCurrentSummary(generateSummary(comments));
+        setCurrentSummary(generateSummary(commentsRef.current));
         scheduleNextUpdate();
       }, resumeDelay);
       
@@ -107,12 +111,17 @@ export function AIDirectionPanel({ comments, countdownMs }: AIDirectionPanelProp
   useEffect(() => {
     if (!hasInitializedRef.current && comments.length > 0) {
       const initialSummary = generateSummary(comments);
-      if (DEBUG) console.log('[AIDirection] Initial summary:', initialSummary);
+      if (DEBUG) console.log('[AIDirection] Component mounted, initial summary:', initialSummary);
       setCurrentSummary(initialSummary);
       hasInitializedRef.current = true;
       scheduleNextUpdate();
     }
   }, [comments]);
+
+  // Debug: Log component mount
+  useEffect(() => {
+    console.log('[AIDirection] Component mounted with', comments.length, 'comments');
+  }, []);
 
   // Update cycle management
   useEffect(() => {
