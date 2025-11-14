@@ -16,12 +16,15 @@ interface AIDirectionPanelProps {
   countdownMs: number;
 }
 
+const DEBUG = true;
+
 export function AIDirectionPanel({ comments, countdownMs }: AIDirectionPanelProps) {
-  const [currentSummary, setCurrentSummary] = useState('the collective listens.');
+  const [currentSummary, setCurrentSummary] = useState('');
   const [isRemix, setIsRemix] = useState(false);
   const [showPostRemix, setShowPostRemix] = useState(false);
   const wasRemixRef = useRef(false);
   const updateTimerRef = useRef<NodeJS.Timeout>();
+  const hasInitializedRef = useRef(false);
 
   // Analyze comments and generate summary
   const generateSummary = (recentComments: Comment[]): string => {
@@ -59,9 +62,13 @@ export function AIDirectionPanel({ comments, countdownMs }: AIDirectionPanelProp
     }
 
     const randomInterval = 30000 + Math.random() * 30000; // 30-60 seconds
+    if (DEBUG) console.log(`[AIDirection] Next update in ${Math.round(randomInterval / 1000)}s`);
+    
     updateTimerRef.current = setTimeout(() => {
       if (!isRemix) {
-        setCurrentSummary(generateSummary(comments));
+        const newSummary = generateSummary(comments);
+        if (DEBUG) console.log(`[AIDirection] Updating summary:`, newSummary);
+        setCurrentSummary(newSummary);
         scheduleNextUpdate();
       }
     }, randomInterval);
@@ -96,9 +103,20 @@ export function AIDirectionPanel({ comments, countdownMs }: AIDirectionPanelProp
     }
   }, [countdownMs, comments]);
 
-  // Initial update cycle
+  // Initial summary generation
   useEffect(() => {
-    if (!isRemix && !showPostRemix) {
+    if (!hasInitializedRef.current && comments.length > 0) {
+      const initialSummary = generateSummary(comments);
+      if (DEBUG) console.log('[AIDirection] Initial summary:', initialSummary);
+      setCurrentSummary(initialSummary);
+      hasInitializedRef.current = true;
+      scheduleNextUpdate();
+    }
+  }, [comments]);
+
+  // Update cycle management
+  useEffect(() => {
+    if (!isRemix && !showPostRemix && hasInitializedRef.current) {
       scheduleNextUpdate();
     }
 
@@ -107,7 +125,7 @@ export function AIDirectionPanel({ comments, countdownMs }: AIDirectionPanelProp
         clearTimeout(updateTimerRef.current);
       }
     };
-  }, [comments, isRemix, showPostRemix]);
+  }, [isRemix, showPostRemix]);
   return (
     <motion.div 
       initial={{ opacity: 0 }}
