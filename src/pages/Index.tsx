@@ -320,7 +320,7 @@ const Index = () => {
       </motion.div>
 
       <div style={{ zIndex: 40 }}>
-        <AIDirectionPanel />
+        <AIDirectionPanel comments={comments} countdownMs={countdownMs} />
       </div>
       
       <MixHistory
