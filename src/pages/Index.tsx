@@ -8,9 +8,10 @@ import { MixHistory } from '@/components/MixHistory';
 import { VersionDrawer } from '@/components/VersionDrawer';
 import { TheListener } from '@/components/TheListener';
 import { Colophon } from '@/components/Colophon';
-import { Transport } from '@/components/Transport';
 import { AudioStartOverlay } from '@/components/AudioStartOverlay';
 import { WaveformScrubber } from '@/components/WaveformScrubber';
+import { WaveformControls } from '@/components/WaveformControls';
+import { useKeyboardControls } from '@/hooks/useKeyboardControls';
 import { useCountdown } from '@/hooks/useCountdown';
 import { createAudioController, AudioController } from '@/lib/audio';
 import {
@@ -38,6 +39,10 @@ const Index = () => {
   const [isMuted, setIsMuted] = useState(true);
   const [audioEventGlow, setAudioEventGlow] = useState(0);
   const [rebirthTrigger, setRebirthTrigger] = useState(0);
+  const [hasInteracted, setHasInteracted] = useState(() => 
+    typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('hasInteracted') === 'true' : false
+  );
+  const [controlsVisible, setControlsVisible] = useState(false);
   const countdownData = useCountdown();
   const countdown = countdownData.display;
   const countdownMs = countdownData.remainingMs;
@@ -46,33 +51,51 @@ const Index = () => {
   // Handle idle state and listener state
   useEffect(() => {
     let idleTimer: NodeJS.Timeout;
+    let controlsTimer: NodeJS.Timeout;
 
     const resetIdle = () => {
       setIsIdle(false);
+      setControlsVisible(true);
+      
       if (!isTyping) {
         setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'idle');
       }
+      
       clearTimeout(idleTimer);
+      clearTimeout(controlsTimer);
+      
       idleTimer = setTimeout(() => {
         setIsIdle(true);
         setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'dormant');
       }, 60000); // 60s for dormant
+
+      // Hide controls after 1.5s of inactivity
+      controlsTimer = setTimeout(() => {
+        setControlsVisible(false);
+      }, 1500);
     };
 
     window.addEventListener('mousemove', resetIdle);
     window.addEventListener('keydown', resetIdle);
     window.addEventListener('click', resetIdle);
+    window.addEventListener('touchstart', resetIdle);
 
     idleTimer = setTimeout(() => {
       setIsIdle(true);
       setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'dormant');
     }, 60000);
 
+    controlsTimer = setTimeout(() => {
+      setControlsVisible(false);
+    }, 1500);
+
     return () => {
       clearTimeout(idleTimer);
+      clearTimeout(controlsTimer);
       window.removeEventListener('mousemove', resetIdle);
       window.removeEventListener('keydown', resetIdle);
       window.removeEventListener('click', resetIdle);
+      window.removeEventListener('touchstart', resetIdle);
     };
   }, [isTyping]);
 
@@ -142,6 +165,10 @@ const Index = () => {
 
   const handleAudioStart = () => {
     setAudioNeedsStart(false);
+    setHasInteracted(true);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('hasInteracted', 'true');
+    }
     audioController?.play();
     setIsPlaying(true);
   };
@@ -197,51 +224,23 @@ const Index = () => {
     return () => controller.cleanup();
   }, []);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      // Don't trigger shortcuts when typing in input fields
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-
-      switch (e.key) {
-        case ' ':
-          e.preventDefault();
-          audioController?.togglePlay();
-          setIsPlaying(audioController?.isPlaying() || false);
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          audioController?.skip(-5);
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          audioController?.skip(5);
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          audioController?.adjustVolume(0.1);
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          audioController?.adjustVolume(-0.1);
-          break;
-        case 'm':
-        case 'M':
-          audioController?.toggleMute();
-          setIsMuted(audioController?.isMuted() || false);
-          break;
-      }
-    };
-
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [audioController]);
+  // Keyboard controls
+  useKeyboardControls({
+    audioController,
+    onTogglePlay: handlePlayToggle,
+    onVolumeChange: () => {
+      // Volume changes handled by audioController
+    },
+    onMuteChange: (muted) => {
+      setIsMuted(muted);
+    },
+  });
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
       {/* Audio start overlay */}
       <AnimatePresence>
-        {audioNeedsStart && <AudioStartOverlay onStart={handleAudioStart} />}
+        {audioNeedsStart && !hasInteracted && <AudioStartOverlay onStart={handleAudioStart} />}
       </AnimatePresence>
 
       {/* Idle darken overlay */}
@@ -283,6 +282,15 @@ const Index = () => {
         onPlayToggle={handlePlayToggle}
       />
 
+      {/* Waveform controls (play/pause, mute, volume) */}
+      {audioController && !audioNeedsStart && (
+        <WaveformControls
+          audioController={audioController}
+          isVisible={controlsVisible || !isIdle}
+          onTogglePlay={handlePlayToggle}
+        />
+      )}
+
       {/* The Listener - living presence */}
       <div className="fixed inset-0 pointer-events-none blend-lighten" style={{ zIndex: 20 }}>
         <TheListener 
@@ -306,11 +314,6 @@ const Index = () => {
       />
 
       <PlayerBar version={currentVersion} countdown={countdown} onForceEmergence={handleForceEmergence} />
-
-      {/* Transport controls */}
-      {audioController && !audioNeedsStart && (
-        <Transport audioController={audioController} />
-      )}
       
       <motion.div
         className="pointer-events-auto"

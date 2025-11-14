@@ -9,7 +9,7 @@ export function AudioStartOverlay({ onStart }: AudioStartOverlayProps) {
     <motion.div
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 1.5 }}
+      transition={{ duration: 0.3 }}
       className="fixed inset-0 bg-black/80 flex items-center justify-center cursor-pointer"
       style={{ zIndex: 100 }}
       onClick={(e) => {

@@ -154,8 +154,10 @@ export function createAudioController(config: AudioControllerConfig = {}): Audio
       
       if (!gainNode || !audioContext || currentMuted) return;
       
-      // Smooth volume change
-      gainNode.gain.setTargetAtTime(currentVolume, audioContext.currentTime, 0.05);
+      // Smooth volume ramp over 100-150ms
+      const now = audioContext.currentTime;
+      gainNode.gain.cancelScheduledValues(now);
+      gainNode.gain.linearRampToValueAtTime(currentVolume, now + 0.1);
       onVolumeChange?.(currentVolume);
     },
 
