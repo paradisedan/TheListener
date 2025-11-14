@@ -1,25 +1,113 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { Comment } from '@/data/mockData';
 
-const POETIC_PHRASES = [
-  'we are awake.',
-  'we breathe.',
-  'we wait.',
-  'we are listening.',
-  'the silence grows heavy.',
-  'we hear you.',
+const NEUTRAL_PHRASES = [
+  'the air holds its shape.',
+  'something stirs beneath.',
+  'patterns emerge, patient.',
+  'the collective listens.',
+  'threads weave together.',
+  'momentum builds, quiet.',
 ];
 
-export function AIDirectionPanel() {
-  const [currentPhrase, setCurrentPhrase] = useState(0);
+interface AIDirectionPanelProps {
+  comments: Comment[];
+  countdownMs: number;
+}
 
+export function AIDirectionPanel({ comments, countdownMs }: AIDirectionPanelProps) {
+  const [currentSummary, setCurrentSummary] = useState('the collective listens.');
+  const [isRemix, setIsRemix] = useState(false);
+  const [showPostRemix, setShowPostRemix] = useState(false);
+  const wasRemixRef = useRef(false);
+  const updateTimerRef = useRef<NodeJS.Timeout>();
+
+  // Analyze comments and generate summary
+  const generateSummary = (recentComments: Comment[]): string => {
+    if (recentComments.length === 0) {
+      return NEUTRAL_PHRASES[Math.floor(Math.random() * NEUTRAL_PHRASES.length)];
+    }
+
+    const recent = recentComments.slice(-10); // Last 10 comments
+    const allText = recent.map(c => c.message.toLowerCase()).join(' ');
+
+    // Simple heuristics
+    if (allText.includes('drum') || allText.includes('beat') || allText.includes('kick')) {
+      return 'the pulse wants more weight.';
+    }
+    if (allText.includes('energy') || allText.includes('faster') || allText.includes('upbeat') || allText.includes('tempo')) {
+      return 'the tempo strains to rise.';
+    }
+    if (allText.includes('sad') || allText.includes('minor') || allText.includes('dark') || allText.includes('melancholy')) {
+      return 'shadows gather in the mix.';
+    }
+    if (allText.includes('vocal') || allText.includes('voice') || allText.includes('lyric') || allText.includes('sing')) {
+      return 'something unsaid wants to be heard.';
+    }
+    if (allText.includes('drop') || allText.includes('break') || allText.includes('release')) {
+      return 'the room craves release.';
+    }
+
+    return NEUTRAL_PHRASES[Math.floor(Math.random() * NEUTRAL_PHRASES.length)];
+  };
+
+  // Schedule next update with random interval
+  const scheduleNextUpdate = () => {
+    if (updateTimerRef.current) {
+      clearTimeout(updateTimerRef.current);
+    }
+
+    const randomInterval = 30000 + Math.random() * 30000; // 30-60 seconds
+    updateTimerRef.current = setTimeout(() => {
+      if (!isRemix) {
+        setCurrentSummary(generateSummary(comments));
+        scheduleNextUpdate();
+      }
+    }, randomInterval);
+  };
+
+  // Handle remix ceremony
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentPhrase((prev) => (prev + 1) % POETIC_PHRASES.length);
-    }, 75000); // 75 seconds
+    const inRemix = countdownMs > 0;
+    
+    if (inRemix && !wasRemixRef.current) {
+      // Entering remix - freeze updates
+      setIsRemix(true);
+      if (updateTimerRef.current) {
+        clearTimeout(updateTimerRef.current);
+      }
+      wasRemixRef.current = true;
+    } else if (!inRemix && wasRemixRef.current) {
+      // Exiting remix - show post-remix message
+      setIsRemix(false);
+      setShowPostRemix(true);
+      setCurrentSummary('a new pattern forms.');
+      
+      // Resume normal cycle after 10-15 seconds
+      const resumeDelay = 10000 + Math.random() * 5000;
+      setTimeout(() => {
+        setShowPostRemix(false);
+        setCurrentSummary(generateSummary(comments));
+        scheduleNextUpdate();
+      }, resumeDelay);
+      
+      wasRemixRef.current = false;
+    }
+  }, [countdownMs, comments]);
 
-    return () => clearInterval(interval);
-  }, []);
+  // Initial update cycle
+  useEffect(() => {
+    if (!isRemix && !showPostRemix) {
+      scheduleNextUpdate();
+    }
+
+    return () => {
+      if (updateTimerRef.current) {
+        clearTimeout(updateTimerRef.current);
+      }
+    };
+  }, [comments, isRemix, showPostRemix]);
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -28,18 +116,24 @@ export function AIDirectionPanel() {
       className="fixed bottom-16 md:bottom-24 left-0 right-0 px-4 md:px-8"
     >
       <div className="container mx-auto max-w-4xl">
-        <div className="flex flex-col items-center gap-4 text-center">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <p className="text-xs font-mono tracking-wide opacity-50">
+            direction:
+          </p>
           <AnimatePresence mode="wait">
             <motion.p 
-              key={currentPhrase}
-              initial={{ opacity: 0, filter: 'blur(4px)' }}
-              animate={{ opacity: 0.4, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, filter: 'blur(4px)' }}
-              transition={{ duration: 3 }}
+              key={currentSummary}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.7 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
               className="text-sm md:text-base font-mono tracking-wider leading-relaxed max-w-2xl px-4"
-              style={{ letterSpacing: '0.15em' }}
+              style={{ 
+                letterSpacing: '0.1em',
+                color: 'rgba(255, 255, 255, 0.7)'
+              }}
             >
-              {POETIC_PHRASES[currentPhrase]}
+              {currentSummary}
             </motion.p>
           </AnimatePresence>
         </div>
