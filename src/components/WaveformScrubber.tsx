@@ -21,7 +21,10 @@ export function WaveformScrubber({
   const [playheadPosition, setPlayheadPosition] = useState(0);
   const [hoverPosition, setHoverPosition] = useState<number | null>(null);
   const [dragStartX, setDragStartX] = useState<number | null>(null);
+  const [dragPosition, setDragPosition] = useState<number | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
   const DRAG_THRESHOLD = 5; // pixels
 
   useEffect(() => {
@@ -74,6 +77,7 @@ export function WaveformScrubber({
     }
 
     if (isDragging) {
+      setDragPosition(percentage * 100);
       handleScrub(e.clientX);
     }
   };
@@ -81,12 +85,14 @@ export function WaveformScrubber({
   const handleMouseUp = () => {
     setIsDragging(false);
     setDragStartX(null);
+    setDragPosition(null);
   };
 
   const handleMouseLeave = () => {
     setHoverPosition(null);
     if (isDragging) {
       setIsDragging(false);
+      setDragPosition(null);
     }
     setDragStartX(null);
   };
@@ -102,13 +108,28 @@ export function WaveformScrubber({
     setDragStartX(null);
   };
 
+  const handleInteractionStart = () => {
+    setIsHovered(true);
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+  };
+
+  const handleInteractionEnd = () => {
+    const timer = setTimeout(() => setIsHovered(false), 1500);
+    hideTimerRef.current = timer;
+  };
+
   useEffect(() => {
     if (isDragging) {
       const handleGlobalMouseMove = (e: MouseEvent) => {
+        if (!containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        const percentage = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        setDragPosition(percentage * 100);
         handleScrub(e.clientX);
       };
       const handleGlobalMouseUp = () => {
         setIsDragging(false);
+        setDragPosition(null);
       };
 
       window.addEventListener('mousemove', handleGlobalMouseMove);
@@ -121,68 +142,104 @@ export function WaveformScrubber({
     }
   }, [isDragging]);
 
+  useEffect(() => {
+    return () => {
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    };
+  }, []);
+
+  const isActive = isHovered || isDragging;
+
   return (
-    <motion.div
-      className="fixed inset-0 flex items-center justify-center pointer-events-none"
-      style={{ zIndex: 10 }}
-      animate={{
-        opacity: isIdle ? 0.25 : 0.15,
-      }}
-      transition={{ duration: 3 }}
-    >
-      <div
-        ref={containerRef}
-        className={`relative flex gap-0.5 md:gap-1 items-end select-none pointer-events-auto min-h-[44px] ${
-          isDragging ? 'cursor-grabbing' : 'cursor-grab'
-        }`}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-        onClick={handleClick}
+    <div className="relative py-4 md:py-5">
+      {/* Subtle glow backdrop */}
+      <div 
+        className="absolute inset-0 -z-10 blur-xl pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.06) 0%, transparent 70%)',
+        }}
+      />
+      
+      <motion.div
+        className="fixed inset-0 flex items-center justify-center pointer-events-none"
+        style={{ zIndex: 10 }}
+        animate={{
+          opacity: isIdle ? 0.25 : 0.15,
+        }}
+        transition={{ duration: 2 }}
       >
-        {waveformAmplitudes.map((amplitude, i) => (
-          <motion.div
-            key={i}
-            className="w-0.5 md:w-1 bg-primary/50 rounded-full"
-            animate={{
-              height: `${amplitude * 50 + 16}px`,
-              opacity: isDragging ? 0.4 : 1,
-            }}
-            transition={{
-              duration: isDragging ? 0 : 0.2,
-              ease: 'easeOut',
-            }}
-          />
-        ))}
+        <div
+          ref={containerRef}
+          className={`relative flex gap-0.5 md:gap-1 items-end select-none pointer-events-auto min-h-[44px] max-w-xl md:max-w-2xl ${
+            isDragging ? 'cursor-grabbing' : isActive ? 'cursor-grab' : 'cursor-pointer'
+          }`}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+          onMouseEnter={handleInteractionStart}
+          onTouchStart={handleInteractionStart}
+          onTouchEnd={handleInteractionEnd}
+          onClick={handleClick}
+        >
+          {waveformAmplitudes.map((amplitude, i) => {
+            const baseOpacity = isActive || isDragging ? 0.7 : 0.25;
+            const barOpacity = Math.max(0.05, amplitude * baseOpacity);
+            
+            return (
+              <motion.div
+                key={i}
+                className="w-0.5 md:w-1 bg-primary rounded-full"
+                animate={{
+                  height: `${amplitude * 50 + 16}px`,
+                  opacity: barOpacity,
+                }}
+                transition={{
+                  duration: isDragging ? 0 : (isActive ? 0.25 : 0.3),
+                  ease: 'easeOut',
+                }}
+              />
+            );
+          })}
 
-        {/* Playhead */}
-        {audioController && (
-          <div
-            className="playhead bg-primary opacity-80"
-            style={{
-              position: 'absolute',
-              left: `${playheadPosition}%`,
-              top: 0,
-              bottom: 0,
-              width: '2px',
-              pointerEvents: 'none',
-              opacity: isDragging ? 1 : 0.8,
-            }}
-          />
-        )}
+          {/* Playhead */}
+          {audioController && (
+            <div
+              className="playhead bg-primary opacity-80"
+              style={{
+                position: 'absolute',
+                left: `${playheadPosition}%`,
+                top: 0,
+                bottom: 0,
+                width: '2px',
+                pointerEvents: 'none',
+                opacity: isDragging ? 1 : 0.8,
+              }}
+            />
+          )}
 
-        {/* Hover indicator */}
-        {hoverPosition !== null && (
-          <div
-            className="absolute top-0 bottom-0 w-0.5 bg-primary/40"
-            style={{
-              left: `${hoverPosition}%`,
-              pointerEvents: 'none',
-            }}
-          />
-        )}
-      </div>
-    </motion.div>
+          {/* Hover indicator */}
+          {hoverPosition !== null && !isDragging && (
+            <div
+              className="absolute top-0 bottom-0 w-0.5 bg-primary/40"
+              style={{
+                left: `${hoverPosition}%`,
+                pointerEvents: 'none',
+              }}
+            />
+          )}
+
+          {/* Drag caret */}
+          {dragPosition !== null && isDragging && (
+            <div
+              className="absolute top-0 bottom-0 w-0.5 bg-white/80 pointer-events-none"
+              style={{
+                left: `${dragPosition}%`,
+              }}
+            />
+          )}
+        </div>
+      </motion.div>
+    </div>
   );
 }
