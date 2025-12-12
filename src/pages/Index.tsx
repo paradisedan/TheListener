@@ -173,13 +173,13 @@ const Index = () => {
     setWhisperTrigger(prev => prev + 1);
   };
 
-  const handleAudioStart = () => {
+  const handleAudioStart = async () => {
     setAudioNeedsStart(false);
     setHasInteracted(true);
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.setItem('hasInteracted', 'true');
     }
-    audioController?.play();
+    await audioController?.play();
     audioController?.mute(false);
     setIsPlaying(true);
     setIsMuted(false);
