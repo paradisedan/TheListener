@@ -18,7 +18,9 @@ interface ActiveWhisper {
   y: number;
   opacity: number;
   drift: number;
-  duration: number;
+  fadeInDuration: number;
+  holdDuration: number;
+  fadeOutDuration: number;
 }
 
 const FORCED_REMIX_TEXT = 'we begin again…';
@@ -125,16 +127,18 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
           text: FORCED_REMIX_TEXT,
           x: 50,
           y: 70,
-          opacity: 0.4,
-          drift: 30,
-          duration: 8,
+          opacity: 0.5,
+          drift: 15,
+          fadeInDuration: 2,
+          holdDuration: 6,
+          fadeOutDuration: 8,
         };
         setActiveWhispers(prev => [...prev.slice(-4), forcedWhisper]);
         hasShownRemixMessageRef.current = true;
         justExitedSilenceRef.current = false;
         
-        // Schedule removal
-        const lifetime = forcedWhisper.duration * 1000 + 800;
+        // Schedule removal after fade-in + hold (exit animation handles fade-out)
+        const lifetime = (forcedWhisper.fadeInDuration + forcedWhisper.holdDuration) * 1000;
         const removalTimeout = setTimeout(() => {
           setActiveWhispers(prev => prev.filter(w => w.id !== whisperId));
           removalTimeoutsRef.current.delete(whisperId);
@@ -193,8 +197,10 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
         x,
         y,
         opacity: Math.max(0.8, Math.min(1.0, opacity)),
-        drift: 6 + Math.random() * 4,
-        duration: 45 + Math.random() * 15, // 45-60 seconds on screen
+        drift: 15 + Math.random() * 10, // Slow drift 15-25px
+        fadeInDuration: 3,
+        holdDuration: 35 + Math.random() * 15, // 35-50s visible
+        fadeOutDuration: 12, // Long 12s fade out
       };
 
       if (DEBUG) console.log('[Whispers] Adding:', whisperId, newWhisper.text);
@@ -215,8 +221,8 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
       }, 45000);
       dedupeTimeoutsRef.current.set(whisperData.id, dedupeTimeout);
 
-      // Schedule removal of this whisper after its lifetime
-      const lifetime = newWhisper.duration * 1000 + 800;
+      // Schedule removal after fade-in + hold (exit animation handles fade-out)
+      const lifetime = (newWhisper.fadeInDuration + newWhisper.holdDuration) * 1000;
       const removalTimeout = setTimeout(() => {
         setActiveWhispers(prev => prev.filter(w => w.id !== whisperId));
         removalTimeoutsRef.current.delete(whisperId);
@@ -260,58 +266,45 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
     };
   }, [whisperPool, isRemixSilence, isRebirthPause, onWhisperAppear]);
 
-  // Determine if remix is imminent for visual styling
-  const isRemixImminent = countdownMs < 10000;
-
   return (
     <div 
       className="fixed inset-0 pointer-events-none" 
       style={{ zIndex: 30 }}
       aria-hidden="true"
     >
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence>
         {activeWhispers.map((whisper) => (
           <motion.div
             key={whisper.id}
-            initial={{ opacity: 0, y: 5, filter: 'blur(3px)' }}
+            initial={{ opacity: 0, y: 0, filter: 'blur(4px)' }}
             animate={{ 
-              opacity: [0, whisper.opacity, whisper.opacity, 0], // Fade in, hold, fade out
+              opacity: whisper.opacity,
               y: -whisper.drift,
-              filter: ['blur(3px)', 'blur(0px)', 'blur(0px)', 'blur(2px)'],
+              filter: 'blur(0px)',
+            }}
+            exit={{ 
+              opacity: 0, 
+              y: -whisper.drift - 15,
+              filter: 'blur(4px)',
+              transition: {
+                duration: whisper.fadeOutDuration,
+                ease: 'easeInOut',
+              }
             }}
             transition={{ 
-              opacity: { 
-                duration: whisper.duration, 
-                times: [0, 0.05, 0.65, 1], // 5% fade in, 60% hold, 35% fade out (long gentle fade)
-                ease: 'easeInOut' 
-              },
-              y: { duration: whisper.duration, ease: 'linear' },
-              filter: { 
-                duration: whisper.duration, 
-                times: [0, 0.05, 0.65, 1],
-                ease: 'easeInOut' 
-              },
+              opacity: { duration: whisper.fadeInDuration, ease: 'easeOut' },
+              y: { duration: whisper.fadeInDuration + whisper.holdDuration, ease: 'linear' },
+              filter: { duration: whisper.fadeInDuration * 0.8, ease: 'easeOut' },
             }}
             style={{
               position: 'absolute',
               left: `${whisper.x}vw`,
               top: `${whisper.y}vh`,
+              textShadow: '0 0 25px rgba(0,0,0,0.9), 0 0 50px rgba(0,0,0,0.6)',
             }}
+            className="font-mono text-[14px] md:text-[15px] tracking-[0.08em] text-white/90"
           >
-            <motion.div
-              animate={{
-                x: [0, Math.random() * 6 - 3, 0],
-              }}
-              transition={{
-                duration: whisper.duration * 1.5,
-                ease: 'easeInOut',
-                repeat: Infinity,
-              }}
-              className="font-mono text-[14px] md:text-[15px] tracking-[0.08em] text-white"
-              style={isRemixImminent ? { mixBlendMode: 'screen' } : {}}
-            >
-              {whisper.text}
-            </motion.div>
+            {whisper.text}
           </motion.div>
         ))}
       </AnimatePresence>
