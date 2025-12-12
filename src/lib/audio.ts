@@ -66,7 +66,7 @@ export function createAudioController(config: AudioControllerConfig = {}): Audio
 
     audioContext = new AudioContext();
     audioElement = new Audio();
-    audioElement.crossOrigin = 'anonymous'; // Required for CORS
+    // Note: Do NOT set crossOrigin for same-origin audio - it taints the MediaElementSource
     
     if (src) {
       audioElement.src = src;
