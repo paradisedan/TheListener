@@ -104,8 +104,9 @@ export function createAudioController(config: AudioControllerConfig = {}): Audio
         await audioContext.resume();
       }
 
-      // Smooth ramp up (300ms)
-      const currentGain = gainNode.gain.value;
+      // Sync audio element muted state
+      audioElement.muted = currentMuted;
+
       const targetGain = currentMuted ? 0 : currentVolume;
       gainNode.gain.setTargetAtTime(targetGain, audioContext.currentTime, 0.1);
 
@@ -168,6 +169,10 @@ export function createAudioController(config: AudioControllerConfig = {}): Audio
 
     mute(muted: boolean) {
       currentMuted = muted;
+      
+      if (audioElement) {
+        audioElement.muted = muted;
+      }
       
       if (!gainNode || !audioContext) return;
 
@@ -236,6 +241,7 @@ export function createAudioController(config: AudioControllerConfig = {}): Audio
       
       // Resume if was playing
       if (wasPlaying) {
+        audioElement.muted = currentMuted;
         await audioElement.play();
         playing = true;
         const targetGain = currentMuted ? 0 : currentVolume;
