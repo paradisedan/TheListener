@@ -84,8 +84,8 @@ export function createAudioController(config: AudioControllerConfig = {}): Audio
     gainNode = audioContext.createGain();
     analyserNode = audioContext.createAnalyser();
     
-    analyserNode.fftSize = 256; // More frequency bins for better bass detection
-    analyserNode.smoothingTimeConstant = 0.4; // Faster response
+    analyserNode.fftSize = 512; // More frequency bins for better resolution
+    analyserNode.smoothingTimeConstant = 0.3; // More responsive
     analyserData = new Uint8Array(analyserNode.frequencyBinCount);
 
     sourceNode.connect(gainNode);

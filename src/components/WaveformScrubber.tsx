@@ -215,7 +215,7 @@ export function WaveformScrubber({
                 key={i}
                 className="w-0.5 md:w-1 bg-primary rounded-full"
                 animate={{
-                  height: `${amplitude * 50 + 16}px`,
+                  height: `${amplitude * 80 + 16}px`,
                   opacity: barOpacity,
                   scaleY: isFlashing ? 1.15 : 1,
                   boxShadow: `0 0 ${glowBlur}px ${glowSpread}px hsla(var(--primary) / ${glowIntensity})`,
