@@ -300,9 +300,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
               position: 'absolute',
               left: `${whisper.x}vw`,
               top: `${whisper.y}vh`,
-              textShadow: '0 0 25px rgba(0,0,0,0.9), 0 0 50px rgba(0,0,0,0.6)',
+              textShadow: '1px 1px 2px rgba(0,0,0,1), 0 0 8px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.5)',
             }}
-            className="font-mono text-[14px] md:text-[15px] tracking-[0.08em] text-white/90"
+            className="font-mono font-medium text-[16px] md:text-[18px] tracking-[0.04em] text-white"
           >
             {whisper.text}
           </motion.div>
