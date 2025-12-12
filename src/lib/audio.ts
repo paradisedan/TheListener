@@ -61,11 +61,12 @@ export function createAudioController(config: AudioControllerConfig = {}): Audio
   let playing = false;
 
   // Initialize audio context and nodes
-  const initAudio = async () => {
+  const initAudio = () => {
     if (audioContext) return;
 
     audioContext = new AudioContext();
     audioElement = new Audio();
+    audioElement.crossOrigin = 'anonymous'; // Required for CORS
     
     if (src) {
       audioElement.src = src;
@@ -83,7 +84,8 @@ export function createAudioController(config: AudioControllerConfig = {}): Audio
     gainNode = audioContext.createGain();
     analyserNode = audioContext.createAnalyser();
     
-    analyserNode.fftSize = 128;
+    analyserNode.fftSize = 256; // More frequency bins for better bass detection
+    analyserNode.smoothingTimeConstant = 0.4; // Faster response
     analyserData = new Uint8Array(analyserNode.frequencyBinCount);
 
     sourceNode.connect(gainNode);
@@ -92,6 +94,11 @@ export function createAudioController(config: AudioControllerConfig = {}): Audio
 
     gainNode.gain.value = startMuted ? 0 : currentVolume;
   };
+  
+  // Initialize immediately if src is provided
+  if (src) {
+    initAudio();
+  }
 
   const controller: AudioController = {
     async play() {
