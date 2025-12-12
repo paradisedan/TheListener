@@ -110,9 +110,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
       const cms = countdownMsRef.current;
       const idle = isIdleRef.current;
       
-      if (cms < 1800000) return 12000; // <30min: 12s (patient buildup)
-      if (idle) return 30000; // Idle: 30s (barely there)
-      return 18000; // Normal: 18s (truly ambient)
+      if (cms < 1800000) return 25000; // <30min: 25s between whispers
+      if (idle) return 60000; // Idle: 60s (very rare)
+      return 40000; // Normal: 40s (meditative pace)
     };
 
     const generateWhisper = () => {
@@ -192,9 +192,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
         text: whisperData.text,
         x,
         y,
-        opacity: Math.max(0.8, Math.min(1.0, opacity)), // 80-100% opacity for readability
-        drift: 8 + Math.random() * 7,
-        duration: 20 + Math.random() * 8,
+        opacity: Math.max(0.8, Math.min(1.0, opacity)),
+        drift: 6 + Math.random() * 4,
+        duration: 45 + Math.random() * 15, // 45-60 seconds on screen
       };
 
       if (DEBUG) console.log('[Whispers] Adding:', whisperId, newWhisper.text);
