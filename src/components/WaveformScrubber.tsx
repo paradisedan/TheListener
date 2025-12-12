@@ -6,6 +6,7 @@ interface WaveformScrubberProps {
   audioController: AudioController | null;
   waveformAmplitudes: number[];
   isIdle: boolean;
+  versionFlash?: number;
   onSeek?: () => void;
   onPlayToggle?: () => void;
 }
@@ -14,6 +15,7 @@ export function WaveformScrubber({
   audioController,
   waveformAmplitudes,
   isIdle,
+  versionFlash = 0,
   onSeek,
   onPlayToggle,
 }: WaveformScrubberProps) {
@@ -23,9 +25,20 @@ export function WaveformScrubber({
   const [dragStartX, setDragStartX] = useState<number | null>(null);
   const [dragPosition, setDragPosition] = useState<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [isFlashing, setIsFlashing] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
   const DRAG_THRESHOLD = 5; // pixels
+
+  // Handle version flash
+  useEffect(() => {
+    if (versionFlash > 0) {
+      setIsFlashing(true);
+      const timer = setTimeout(() => setIsFlashing(false), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [versionFlash]);
+
 
   useEffect(() => {
     if (!audioController || isDragging) return;
@@ -153,10 +166,17 @@ export function WaveformScrubber({
   return (
     <div className="relative py-4 md:py-5">
       {/* Subtle glow backdrop */}
-      <div 
+      <motion.div 
         className="absolute inset-0 -z-10 blur-xl pointer-events-none"
+        animate={{
+          opacity: isFlashing ? 1 : 1,
+          scale: isFlashing ? 1.2 : 1,
+        }}
+        transition={{ duration: isFlashing ? 0.15 : 0.4 }}
         style={{
-          background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.06) 0%, transparent 70%)',
+          background: isFlashing 
+            ? 'radial-gradient(ellipse at center, rgba(255,255,255,0.25) 0%, transparent 70%)'
+            : 'radial-gradient(ellipse at center, rgba(255,255,255,0.06) 0%, transparent 70%)',
         }}
       />
       
@@ -183,7 +203,7 @@ export function WaveformScrubber({
           onClick={handleClick}
         >
           {waveformAmplitudes.map((amplitude, i) => {
-            const baseOpacity = isActive || isDragging ? 0.7 : 0.25;
+            const baseOpacity = isFlashing ? 0.95 : (isActive || isDragging ? 0.7 : 0.25);
             const barOpacity = Math.max(0.05, amplitude * baseOpacity);
             
             return (
@@ -193,9 +213,10 @@ export function WaveformScrubber({
                 animate={{
                   height: `${amplitude * 50 + 16}px`,
                   opacity: barOpacity,
+                  scaleY: isFlashing ? 1.15 : 1,
                 }}
                 transition={{
-                  duration: isDragging ? 0 : (isActive ? 0.25 : 0.3),
+                  duration: isFlashing ? 0.1 : (isDragging ? 0 : (isActive ? 0.25 : 0.3)),
                   ease: 'easeOut',
                 }}
               />
