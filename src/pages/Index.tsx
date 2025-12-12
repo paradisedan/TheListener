@@ -144,8 +144,8 @@ const Index = () => {
   // Update waveform amplitudes from real audio frequency data with symmetric frequency mapping
   useEffect(() => {
     let animationFrame: number;
-    const smoothingFactor = 0.35; // Faster response
-    const bassSmoothingFactor = 0.4;
+    const smoothingFactor = 0.5; // More responsive
+    const bassSmoothingFactor = 0.6;
     const barCount = 40;
     const halfBars = barCount / 2;
     let currentBass = 0;
@@ -153,7 +153,7 @@ const Index = () => {
     const updateAmplitudes = () => {
       const analyserData = audioController?.getAnalyserData();
       // Check if we have actual data (not all zeros)
-      const hasData = analyserData && analyserData.some(v => v > 5);
+      const hasData = analyserData && analyserData.some(v => v > 10);
       
       // DEBUG: Log analyser data to verify it's working
       console.log('Analyser:', analyserData?.[0], analyserData?.[10], analyserData?.[30], 'hasData:', hasData);
@@ -173,12 +173,15 @@ const Index = () => {
         
         setWaveformAmplitudes(prev => {
           // Create symmetric visualization: bass on edges, highs in center
+          // Map outer bars to bass (bin 0-32), center to higher freqs
           return prev.map((current, i) => {
             const distanceFromCenter = Math.abs(i - halfBars) / halfBars;
-            const freqPosition = 1 - distanceFromCenter;
-            const binIndex = Math.floor(freqPosition * dataLength * 0.75);
+            // Quadratic mapping for better bass spread across outer bars
+            const freqPosition = Math.pow(1 - distanceFromCenter, 2);
+            const binIndex = Math.floor(freqPosition * Math.min(dataLength * 0.5, 32));
             const target = analyserData[binIndex] / 255;
-            const boostedTarget = distanceFromCenter > 0.7 ? target * 1.3 : target;
+            // Boost outer bars (bass) and add overall boost
+            const boostedTarget = target * (1 + distanceFromCenter * 0.5);
             return current + (Math.min(1, boostedTarget) - current) * smoothingFactor;
           });
         });
