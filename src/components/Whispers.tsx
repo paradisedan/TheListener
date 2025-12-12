@@ -21,10 +21,23 @@ interface ActiveWhisper {
   fadeInDuration: number;
   holdDuration: number;
   fadeOutDuration: number;
+  color: string;
 }
 
 const FORCED_REMIX_TEXT = 'we begin again…';
 const DEBUG = false; // Set to true to enable logging
+
+// Subtle color palette based on design system (primary: mint, secondary: magenta, neutral: white)
+const WHISPER_COLORS = [
+  'hsl(0 0% 100%)',           // pure white (most common)
+  'hsl(0 0% 100%)',           // pure white (duplicate for higher weight)
+  'hsl(168 40% 90%)',         // very subtle mint tint
+  'hsl(168 30% 85%)',         // soft mint
+  'hsl(300 25% 88%)',         // very subtle magenta tint
+  'hsl(200 20% 88%)',         // subtle cool blue-gray
+];
+
+const getRandomWhisperColor = () => WHISPER_COLORS[Math.floor(Math.random() * WHISPER_COLORS.length)];
 
 export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, forceRebirthMessage = 0 }: WhispersProps) {
   const [activeWhispers, setActiveWhispers] = useState<ActiveWhisper[]>([]);
@@ -132,6 +145,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
           fadeInDuration: 4,
           holdDuration: 6,
           fadeOutDuration: 16,
+          color: 'hsl(168 40% 90%)', // mint tint for rebirth
         };
         setActiveWhispers(prev => [...prev.slice(-4), forcedWhisper]);
         hasShownRemixMessageRef.current = true;
@@ -201,6 +215,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
         fadeInDuration: 6,
         holdDuration: 35 + Math.random() * 15, // 35-50s visible
         fadeOutDuration: 24, // Long 24s fade out
+        color: getRandomWhisperColor(),
       };
 
       if (DEBUG) console.log('[Whispers] Adding:', whisperId, newWhisper.text);
@@ -301,8 +316,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
               left: `${whisper.x}vw`,
               top: `${whisper.y}vh`,
               textShadow: '1px 1px 2px rgba(0,0,0,1), 0 0 8px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.5)',
+              color: whisper.color,
             }}
-            className="font-mono font-medium text-[16px] md:text-[18px] tracking-[0.04em] text-white"
+            className="font-mono font-medium text-[16px] md:text-[18px] tracking-[0.04em]"
           >
             {whisper.text}
           </motion.div>
