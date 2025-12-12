@@ -79,10 +79,10 @@ const Index = () => {
         setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'dormant');
       }, 60000); // 60s for dormant
 
-      // Hide controls after 1.5s of inactivity
+      // Hide controls after 3s of inactivity
       controlsTimer = setTimeout(() => {
         setControlsVisible(false);
-      }, 1500);
+      }, 3000);
     };
 
     window.addEventListener('mousemove', resetIdle);
@@ -97,7 +97,7 @@ const Index = () => {
 
     controlsTimer = setTimeout(() => {
       setControlsVisible(false);
-    }, 1500);
+    }, 3000);
 
     return () => {
       clearTimeout(idleTimer);
@@ -306,7 +306,7 @@ const Index = () => {
       {audioController && (
         <WaveformControls
           audioController={audioController}
-          isVisible={true}
+          isVisible={controlsVisible}
           onTogglePlay={handlePlayToggle}
         />
       )}
