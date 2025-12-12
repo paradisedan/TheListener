@@ -140,24 +140,33 @@ const Index = () => {
     setTimeout(() => setKeystrokePulse(0), 500);
   };
 
-  // Update waveform amplitudes from real audio frequency data
+  // Update waveform amplitudes from real audio frequency data with symmetric frequency mapping
   useEffect(() => {
     let animationFrame: number;
-    const smoothingFactor = 0.25; // Lower = smoother, higher = more responsive
+    const smoothingFactor = 0.25;
+    const barCount = 40;
+    const halfBars = barCount / 2;
     
     const updateAmplitudes = () => {
       setWaveformAmplitudes(prev => {
         if (audioController && isPlaying) {
           const analyserData = audioController.getAnalyserData();
-          // Sample 40 bars from frequency data with smoothing
+          const dataLength = analyserData.length;
+          
+          // Create symmetric visualization: bass on edges, highs in center
           return prev.map((current, i) => {
-            const binIndex = Math.floor((i / 40) * analyserData.length);
+            // Map bar index to frequency: edges = low freq, center = high freq
+            const distanceFromCenter = Math.abs(i - halfBars) / halfBars; // 0 at center, 1 at edges
+            // Invert: 0 = bass (low bins), 1 = highs (high bins)
+            const freqPosition = 1 - distanceFromCenter;
+            // Map to frequency bins (use lower 75% of spectrum for better visual)
+            const binIndex = Math.floor(freqPosition * dataLength * 0.75);
             const target = analyserData[binIndex] / 255;
-            // Smooth transition between old and new values
-            return current + (target - current) * smoothingFactor;
+            // Boost bass slightly for visual impact
+            const boostedTarget = distanceFromCenter > 0.7 ? target * 1.2 : target;
+            return current + (Math.min(1, boostedTarget) - current) * smoothingFactor;
           });
         } else {
-          // When not playing, fade to subtle ambient
           return prev.map(v => v * 0.92 + 0.02);
         }
       });
