@@ -73,16 +73,47 @@ export const aiDirection = "Users want a heavier drop with more bass, and they'r
 
 export const getRandomComment = (): Comment => {
   const messages = [
+    // Drums/beat/kick keywords
+    'The drums need more punch 🥁',
+    'That beat is hitting hard',
+    'Can we layer the kick drum?',
+    'Drum pattern is hypnotic',
+    'Need a snappier snare',
+    
+    // Energy/tempo keywords
+    'The energy is building nicely',
+    'Maybe push the tempo up?',
+    'This feels upbeat now 🔥',
+    'Going faster would be wild',
+    'Love the high energy here',
+    
+    // Mood keywords (sad/minor/dark)
+    'Getting some dark vibes from this',
+    'The minor key is beautiful',
+    'Feels melancholy in the best way',
+    'Something sad about it, love it',
+    
+    // Vocal keywords
+    'Add some vocal chops?',
+    'The voice sample is perfect',
+    'Need lyrics for this',
+    'Would sound amazing with singing',
+    'Vocal harmonies would be fire',
+    
+    // Drop/break/release keywords
+    'The drop is massive 💥',
+    'Build to a bigger break',
+    'That release hits different',
+    'Drop could be even heavier',
+    'The breakdown is everything',
+    
+    // Neutral/general (still good variety)
     'This is sounding amazing! 🎵',
     'Can we try adding strings?',
     'The vibe is perfect',
-    'Maybe add a bridge section?',
     'Love where this is going 💫',
-    'Drop could be heavier',
-    'Tempo feels just right',
-    'Add some reverb?',
-    'This slaps! 🔥',
     'Brilliant collaboration',
+    'Add some reverb?',
   ];
   
   const randomUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
