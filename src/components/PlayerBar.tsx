@@ -56,6 +56,7 @@ export function PlayerBar({
 
   const hasVersions = versions.length > 0;
   const activeVersion = currentVersion ?? version;
+  const activeTrack = versions.find(v => v.version === activeVersion);
 
   return (
     <motion.div 
@@ -68,12 +69,15 @@ export function PlayerBar({
         <div ref={versionRef} className="relative">
           <motion.button
             onClick={() => hasVersions && setIsVersionOpen(!isVersionOpen)}
-            className={`font-mono text-[10px] md:text-xs tracking-wider ${hasVersions ? 'cursor-pointer hover:opacity-70' : ''}`}
+            className={`font-mono text-[10px] md:text-xs tracking-wider flex items-center gap-2 ${hasVersions ? 'cursor-pointer hover:opacity-70' : ''}`}
             animate={{ opacity: [0.3, 0.4, 0.3] }}
             transition={{ duration: 4, repeat: Infinity }}
             disabled={!hasVersions}
           >
-            v{activeVersion}
+            <span>v{activeVersion}</span>
+            {activeTrack && (
+              <span className="opacity-50 italic">{activeTrack.name}</span>
+            )}
           </motion.button>
 
           <AnimatePresence>
