@@ -52,6 +52,7 @@ const Index = () => {
   );
   const [controlsVisible, setControlsVisible] = useState(false);
   const [currentTrackVersion, setCurrentTrackVersion] = useState<TrackVersion>(TRACK_VERSIONS[3]); // v4 default
+  const [versionFlash, setVersionFlash] = useState(0);
   const countdownData = useCountdown();
   const countdown = countdownData.display;
   const countdownMs = countdownData.remainingMs;
@@ -210,6 +211,7 @@ const Index = () => {
   const handleVersionChange = async (trackVersion: TrackVersion) => {
     if (!audioController) return;
     setCurrentTrackVersion(trackVersion);
+    setVersionFlash(prev => prev + 1);
     await audioController.setSource(trackVersion.src);
   };
 
@@ -295,6 +297,7 @@ const Index = () => {
         audioController={audioController}
         waveformAmplitudes={waveformAmplitudes}
         isIdle={isIdle}
+        versionFlash={versionFlash}
         onSeek={handleSeek}
         onPlayToggle={handlePlayToggle}
       />
