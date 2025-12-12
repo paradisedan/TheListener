@@ -41,10 +41,13 @@ export function TheListener({
     }
   }, [audioEventGlow]);
 
-  // Bass-reactive ear animation values - amplified for visibility
-  const bassScale = 1 + bassAmplitude * 0.25; // Ears scale up with bass (increased)
-  const bassTilt = bassAmplitude * 15; // Ears tilt outward with bass hits (increased)
-  const bassGlow = bassAmplitude * 0.6; // Extra glow on bass (increased)
+  // Bass-reactive ear animation values - dramatically amplified for visibility
+  const bassScale = 1 + bassAmplitude * 0.4; // Ears scale up with bass (boosted)
+  const bassTilt = bassAmplitude * 25; // Ears tilt outward with bass hits (boosted)
+  const bassGlow = bassAmplitude * 0.8; // Extra glow on bass (boosted)
+  
+  // DEBUG: Log bass values to verify animation
+  console.log('TheListener bass:', bassAmplitude.toFixed(2), 'scale:', bassScale.toFixed(2), 'tilt:', bassTilt.toFixed(1));
 
   const baseOpacity = state === 'dormant' ? 0.30 : 0.50;
   const earTilt = (state === 'typing' || state === 'focused' ? -3 : 0) + bassTilt;
@@ -142,7 +145,7 @@ export function TheListener({
             transition={
               state === 'rebirth'
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
-                : { duration: 0.08, ease: 'easeOut' }
+                : { duration: 0.12, ease: 'easeOut' }
             }
           />
 
@@ -171,7 +174,7 @@ export function TheListener({
             transition={
               state === 'rebirth'
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
-                : { duration: 0.08, ease: 'easeOut' }
+                : { duration: 0.12, ease: 'easeOut' }
             }
           />
 
