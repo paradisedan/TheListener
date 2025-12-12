@@ -129,9 +129,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
           y: 70,
           opacity: 0.5,
           drift: 15,
-          fadeInDuration: 2,
+          fadeInDuration: 4,
           holdDuration: 6,
-          fadeOutDuration: 8,
+          fadeOutDuration: 16,
         };
         setActiveWhispers(prev => [...prev.slice(-4), forcedWhisper]);
         hasShownRemixMessageRef.current = true;
@@ -198,9 +198,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
         y,
         opacity: Math.max(0.8, Math.min(1.0, opacity)),
         drift: 15 + Math.random() * 10, // Slow drift 15-25px
-        fadeInDuration: 3,
+        fadeInDuration: 6,
         holdDuration: 35 + Math.random() * 15, // 35-50s visible
-        fadeOutDuration: 12, // Long 12s fade out
+        fadeOutDuration: 24, // Long 24s fade out
       };
 
       if (DEBUG) console.log('[Whispers] Adding:', whisperId, newWhisper.text);
@@ -276,7 +276,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
         {activeWhispers.map((whisper) => (
           <motion.div
             key={whisper.id}
-            initial={{ opacity: 0, y: 0, filter: 'blur(4px)' }}
+            initial={{ opacity: 0, y: 0, filter: 'blur(3px)' }}
             animate={{ 
               opacity: whisper.opacity,
               y: -whisper.drift,
@@ -285,7 +285,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
             exit={{ 
               opacity: 0, 
               y: -whisper.drift - 15,
-              filter: 'blur(4px)',
+              filter: 'blur(3px)',
               transition: {
                 duration: whisper.fadeOutDuration,
                 ease: 'easeInOut',
