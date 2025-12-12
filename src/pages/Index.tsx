@@ -40,6 +40,7 @@ const Index = () => {
   const [keystrokePulse, setKeystrokePulse] = useState(0);
   const [listenerState, setListenerState] = useState<'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant'>('idle');
   const [waveformAmplitudes, setWaveformAmplitudes] = useState<number[]>(Array(40).fill(0.5));
+  const [bassAmplitude, setBassAmplitude] = useState(0);
   const [whisperTrigger, setWhisperTrigger] = useState(0);
   const [audioNeedsStart, setAudioNeedsStart] = useState(true);
   const [audioController, setAudioController] = useState<AudioController | null>(null);
@@ -144,32 +145,41 @@ const Index = () => {
   useEffect(() => {
     let animationFrame: number;
     const smoothingFactor = 0.25;
+    const bassSmoothingFactor = 0.3;
     const barCount = 40;
     const halfBars = barCount / 2;
+    let currentBass = 0;
     
     const updateAmplitudes = () => {
-      setWaveformAmplitudes(prev => {
-        if (audioController && isPlaying) {
-          const analyserData = audioController.getAnalyserData();
-          const dataLength = analyserData.length;
-          
+      if (audioController && isPlaying) {
+        const analyserData = audioController.getAnalyserData();
+        const dataLength = analyserData.length;
+        
+        // Extract bass (first ~8 bins, roughly 0-350Hz at 44.1kHz sample rate)
+        const bassEnd = Math.floor(dataLength * 0.125);
+        let bassSum = 0;
+        for (let i = 0; i < bassEnd; i++) {
+          bassSum += analyserData[i];
+        }
+        const targetBass = (bassSum / bassEnd) / 255;
+        currentBass = currentBass + (targetBass - currentBass) * bassSmoothingFactor;
+        setBassAmplitude(currentBass);
+        
+        setWaveformAmplitudes(prev => {
           // Create symmetric visualization: bass on edges, highs in center
           return prev.map((current, i) => {
-            // Map bar index to frequency: edges = low freq, center = high freq
-            const distanceFromCenter = Math.abs(i - halfBars) / halfBars; // 0 at center, 1 at edges
-            // Invert: 0 = bass (low bins), 1 = highs (high bins)
+            const distanceFromCenter = Math.abs(i - halfBars) / halfBars;
             const freqPosition = 1 - distanceFromCenter;
-            // Map to frequency bins (use lower 75% of spectrum for better visual)
             const binIndex = Math.floor(freqPosition * dataLength * 0.75);
             const target = analyserData[binIndex] / 255;
-            // Boost bass slightly for visual impact
             const boostedTarget = distanceFromCenter > 0.7 ? target * 1.2 : target;
             return current + (Math.min(1, boostedTarget) - current) * smoothingFactor;
           });
-        } else {
-          return prev.map(v => v * 0.92 + 0.02);
-        }
-      });
+        });
+      } else {
+        setBassAmplitude(prev => prev * 0.92);
+        setWaveformAmplitudes(prev => prev.map(v => v * 0.92 + 0.02));
+      }
       animationFrame = requestAnimationFrame(updateAmplitudes);
     };
     
@@ -345,6 +355,7 @@ const Index = () => {
         <TheListener 
           state={listenerState} 
           waveformAmplitudes={waveformAmplitudes}
+          bassAmplitude={bassAmplitude}
           keystrokePulse={keystrokePulse}
           whisperGlow={whisperTrigger}
           audioPlaying={isPlaying}

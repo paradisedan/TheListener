@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 interface TheListenerProps {
   state: 'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant';
   waveformAmplitudes?: number[];
+  bassAmplitude?: number;
   keystrokePulse?: number;
   whisperGlow?: number;
   audioPlaying?: boolean;
@@ -14,6 +15,7 @@ interface TheListenerProps {
 export function TheListener({ 
   state, 
   waveformAmplitudes = [], 
+  bassAmplitude = 0,
   keystrokePulse = 0, 
   whisperGlow = 0,
   audioPlaying = false,
@@ -39,18 +41,13 @@ export function TheListener({
     }
   }, [audioEventGlow]);
 
-  // Calculate ear flicker from outer waveform bars
-  const getEarFlicker = () => {
-    if (waveformAmplitudes.length === 0) return 0;
-    const leftBars = waveformAmplitudes.slice(0, 5);
-    const rightBars = waveformAmplitudes.slice(35, 40);
-    const avgAmplitude = [...leftBars, ...rightBars].reduce((a, b) => a + b, 0) / 10;
-    return avgAmplitude * 1.2;
-  };
+  // Bass-reactive ear animation values
+  const bassScale = 1 + bassAmplitude * 0.15; // Ears scale up with bass
+  const bassTilt = bassAmplitude * 8; // Ears tilt outward with bass hits
+  const bassGlow = bassAmplitude * 0.4; // Extra glow on bass
 
   const baseOpacity = state === 'dormant' ? 0.30 : 0.50;
-  const earTilt = state === 'typing' || state === 'focused' ? -3 : 0;
-  const earFlicker = getEarFlicker();
+  const earTilt = (state === 'typing' || state === 'focused' ? -3 : 0) + bassTilt;
   const keystrokeBoost = keystrokePulse * 0.15;
   const audioBoost = audioPlaying ? 0.20 : 0;
   const muteOpacity = audioMuted ? 0.4 : 1;
@@ -120,63 +117,61 @@ export function TheListener({
             filter: state === 'rebirth' ? 'none' : 'blur(14px)',
           }}
         >
-          {/* Left ear - waveform reactive */}
+          {/* Left ear - bass reactive */}
           <motion.path
             d="M 200 400 Q 150 200 180 50 Q 190 20 200 50 Q 220 180 220 350"
             stroke={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
             strokeWidth={state === 'rebirth' ? "8" : "6"}
             fill="none"
             strokeLinecap="round"
+            style={{
+              filter: `drop-shadow(0 0 ${8 + bassGlow * 20}px hsl(168 95% 82% / ${0.3 + bassGlow}))`,
+            }}
             animate={
               state === 'rebirth'
                 ? {
                     opacity: [0, 0.95, 0.9, 0, 0.4],
-                  }
-                : whisperGlowActive > 0
-                ? {
-                    d: `M 200 400 Q ${150 + earTilt} 200 ${180 + earTilt} ${50 + earFlicker * 20} Q ${190 + earTilt} 20 200 50 Q 220 180 220 350`,
-                    opacity: 0.85,
+                    scale: 1,
                   }
                 : {
-                    opacity: 0.85,
+                    d: `M 200 400 Q ${150 - earTilt} 200 ${180 - earTilt} 50 Q ${190 - earTilt} 20 200 50 Q 220 180 220 350`,
+                    opacity: 0.85 + bassGlow * 0.15,
+                    scale: bassScale,
                   }
             }
             transition={
               state === 'rebirth'
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
-                : whisperGlowActive > 0
-                ? { duration: 0.15, ease: 'easeOut' }
-                : {}
+                : { duration: 0.08, ease: 'easeOut' }
             }
           />
 
-          {/* Right ear - waveform reactive */}
+          {/* Right ear - bass reactive */}
           <motion.path
             d="M 400 400 Q 450 200 420 50 Q 410 20 400 50 Q 380 180 380 350"
             stroke={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
             strokeWidth={state === 'rebirth' ? "8" : "6"}
             fill="none"
             strokeLinecap="round"
+            style={{
+              filter: `drop-shadow(0 0 ${8 + bassGlow * 20}px hsl(168 95% 82% / ${0.3 + bassGlow}))`,
+            }}
             animate={
               state === 'rebirth'
                 ? {
                     opacity: [0, 0.95, 0.9, 0, 0.4],
-                  }
-                : whisperGlowActive > 0
-                ? {
-                    d: `M 400 400 Q ${450 - earTilt} 200 ${420 - earTilt} ${50 + earFlicker * 20} Q ${410 - earTilt} 20 400 50 Q 380 180 380 350`,
-                    opacity: 0.85,
+                    scale: 1,
                   }
                 : {
-                    opacity: 0.85,
+                    d: `M 400 400 Q ${450 + earTilt} 200 ${420 + earTilt} 50 Q ${410 + earTilt} 20 400 50 Q 380 180 380 350`,
+                    opacity: 0.85 + bassGlow * 0.15,
+                    scale: bassScale,
                   }
             }
             transition={
               state === 'rebirth'
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
-                : whisperGlowActive > 0
-                ? { duration: 0.15, ease: 'easeOut' }
-                : {}
+                : { duration: 0.08, ease: 'easeOut' }
             }
           />
 
