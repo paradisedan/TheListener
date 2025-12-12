@@ -140,20 +140,33 @@ const Index = () => {
     setTimeout(() => setKeystrokePulse(0), 500);
   };
 
-  // Update waveform amplitudes
+  // Update waveform amplitudes from real audio frequency data
   useEffect(() => {
     let animationFrame: number;
+    const smoothingFactor = 0.25; // Lower = smoother, higher = more responsive
     
     const updateAmplitudes = () => {
-      setWaveformAmplitudes(prev => 
-        prev.map(() => Math.random() * 0.6 + 0.2)
-      );
+      setWaveformAmplitudes(prev => {
+        if (audioController && isPlaying) {
+          const analyserData = audioController.getAnalyserData();
+          // Sample 40 bars from frequency data with smoothing
+          return prev.map((current, i) => {
+            const binIndex = Math.floor((i / 40) * analyserData.length);
+            const target = analyserData[binIndex] / 255;
+            // Smooth transition between old and new values
+            return current + (target - current) * smoothingFactor;
+          });
+        } else {
+          // When not playing, fade to subtle ambient
+          return prev.map(v => v * 0.92 + 0.02);
+        }
+      });
       animationFrame = requestAnimationFrame(updateAmplitudes);
     };
     
     animationFrame = requestAnimationFrame(updateAmplitudes);
     return () => cancelAnimationFrame(animationFrame);
-  }, []);
+  }, [audioController, isPlaying]);
 
   // Add new comments periodically
   useEffect(() => {
