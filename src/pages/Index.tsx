@@ -303,10 +303,10 @@ const Index = () => {
       />
 
       {/* Waveform controls (play/pause, mute, volume) */}
-      {audioController && !audioNeedsStart && (
+      {audioController && (
         <WaveformControls
           audioController={audioController}
-          isVisible={controlsVisible || !isIdle}
+          isVisible={true}
           onTogglePlay={handlePlayToggle}
         />
       )}
