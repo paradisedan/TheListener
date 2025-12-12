@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlayerBar } from '@/components/PlayerBar';
+import { PlayerBar, TrackVersion } from '@/components/PlayerBar';
 import { PromptSection } from '@/components/PromptSection';
 import { AIDirectionPanel } from '@/components/AIDirectionPanel';
 import { Whispers } from '@/components/Whispers';
@@ -23,6 +23,14 @@ import {
   Version,
 } from '@/data/mockData';
 
+// Track versions with audio sources
+const TRACK_VERSIONS: TrackVersion[] = [
+  { version: 1, name: 'Suspended State', src: '/audio/v1.mp3' },
+  { version: 2, name: 'More Weight', src: '/audio/v2.mp3' },
+  { version: 3, name: 'More Space', src: '/audio/v3.mp3' },
+  { version: 4, name: 'Emergence', src: '/audio/v4.mp3' },
+];
+
 const Index = () => {
   const [comments, setComments] = useState<Comment[]>(mockComments);
   const [selectedVersion, setSelectedVersion] = useState<Version | null>(null);
@@ -43,6 +51,7 @@ const Index = () => {
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('hasInteracted') === 'true' : false
   );
   const [controlsVisible, setControlsVisible] = useState(false);
+  const [currentTrackVersion, setCurrentTrackVersion] = useState<TrackVersion>(TRACK_VERSIONS[3]); // v4 default
   const countdownData = useCountdown();
   const countdown = countdownData.display;
   const countdownMs = countdownData.remainingMs;
@@ -197,9 +206,17 @@ const Index = () => {
     }, 4000);
   };
 
+  // Handle track version change
+  const handleVersionChange = async (trackVersion: TrackVersion) => {
+    if (!audioController) return;
+    setCurrentTrackVersion(trackVersion);
+    await audioController.setSource(trackVersion.src);
+  };
+
   // Initialize audio controller
   useEffect(() => {
     const controller = createAudioController({
+      src: currentTrackVersion.src,
       startMuted: true,
       loop: true,
       onPlay: () => {
@@ -313,7 +330,14 @@ const Index = () => {
         forceRebirthMessage={rebirthTrigger}
       />
 
-      <PlayerBar version={currentVersion} countdown={countdown} onForceEmergence={handleForceEmergence} />
+      <PlayerBar 
+        version={currentVersion} 
+        countdown={countdown} 
+        onForceEmergence={handleForceEmergence}
+        versions={TRACK_VERSIONS}
+        currentVersion={currentTrackVersion.version}
+        onVersionChange={handleVersionChange}
+      />
       
       <motion.div
         className="pointer-events-auto"

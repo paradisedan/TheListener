@@ -27,6 +27,7 @@ export interface AudioController {
   isPlaying(): boolean;
   isMuted(): boolean;
   getVolume(): number;
+  setSource(src: string): Promise<void>;
   cleanup(): void;
 }
 
@@ -205,6 +206,41 @@ export function createAudioController(config: AudioControllerConfig = {}): Audio
 
     getVolume() {
       return currentVolume;
+    },
+
+    async setSource(newSrc: string) {
+      await initAudio();
+      
+      if (!audioElement || !audioContext || !gainNode) return;
+      
+      const wasPlaying = playing;
+      const currentTime = audioElement.currentTime;
+      
+      // Fade out
+      gainNode.gain.setTargetAtTime(0, audioContext.currentTime, 0.05);
+      
+      await new Promise(resolve => setTimeout(resolve, 150));
+      
+      // Change source
+      audioElement.src = newSrc;
+      audioElement.load();
+      
+      // Wait for audio to be ready
+      await new Promise<void>((resolve) => {
+        const onCanPlay = () => {
+          audioElement?.removeEventListener('canplay', onCanPlay);
+          resolve();
+        };
+        audioElement?.addEventListener('canplay', onCanPlay);
+      });
+      
+      // Resume if was playing
+      if (wasPlaying) {
+        await audioElement.play();
+        playing = true;
+        const targetGain = currentMuted ? 0 : currentVolume;
+        gainNode.gain.setTargetAtTime(targetGain, audioContext.currentTime, 0.1);
+      }
     },
 
     cleanup() {
