@@ -22,14 +22,13 @@ interface ActiveWhisper {
 }
 
 const FORCED_REMIX_TEXT = 'we begin again…';
-const DEBUG = true; // Set to false to disable logging
+const DEBUG = false; // Set to true to enable logging
 
 export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, forceRebirthMessage = 0 }: WhispersProps) {
   const [activeWhispers, setActiveWhispers] = useState<ActiveWhisper[]>([]);
   const [recentWhisperIds, setRecentWhisperIds] = useState<string[]>([]);
   const [isRemixSilence, setIsRemixSilence] = useState(false);
   const [isRebirthPause, setIsRebirthPause] = useState(false);
-  const [hasShownRemixMessage, setHasShownRemixMessage] = useState(false);
 
   // Refs to avoid dependency restarts
   const activeWhispersRef = useRef(activeWhispers);
@@ -37,6 +36,12 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
   const countdownMsRef = useRef(countdownMs);
   const isIdleRef = useRef(isIdle);
   const justExitedSilenceRef = useRef(false);
+  const hasShownRemixMessageRef = useRef(false);
+  
+  // Timeout tracking for proper cleanup
+  const tickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const removalTimeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const dedupeTimeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // Create pool of valid whisper fragments
   const whisperPool = useMemo(() => {
@@ -63,14 +68,16 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
       if (DEBUG) console.log('[Whispers] 🌟 Force rebirth message triggered - entering 10s pause');
       setIsRebirthPause(true);
       setActiveWhispers([]);
-      setHasShownRemixMessage(false);
+      hasShownRemixMessageRef.current = false;
       
       // Resume after 10s with forced message
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         if (DEBUG) console.log('[Whispers] Exiting rebirth pause');
         setIsRebirthPause(false);
         justExitedSilenceRef.current = true;
       }, 10000);
+      
+      return () => clearTimeout(timeout);
     }
   }, [forceRebirthMessage]);
 
@@ -80,14 +87,16 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
       if (DEBUG) console.log('[Whispers] T=0: Entering remix silence');
       setIsRemixSilence(true);
       setActiveWhispers([]);
-      setHasShownRemixMessage(false);
+      hasShownRemixMessageRef.current = false;
       
       // Resume after 10s with forced message
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         if (DEBUG) console.log('[Whispers] Exiting remix silence');
         setIsRemixSilence(false);
         justExitedSilenceRef.current = true;
       }, 10000);
+      
+      return () => clearTimeout(timeout);
     }
   }, [countdownMs, isRemixSilence]);
 
@@ -108,10 +117,11 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
 
     const generateWhisper = () => {
       // Force "we begin again..." as first whisper after remix
-      if (justExitedSilenceRef.current && !hasShownRemixMessage) {
+      if (justExitedSilenceRef.current && !hasShownRemixMessageRef.current) {
         if (DEBUG) console.log('[Whispers] Adding forced remix message');
+        const whisperId = `remix-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
         const forcedWhisper: ActiveWhisper = {
-          id: `remix-${Date.now()}`,
+          id: whisperId,
           text: FORCED_REMIX_TEXT,
           x: 50,
           y: 70,
@@ -120,8 +130,17 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
           duration: 8,
         };
         setActiveWhispers(prev => [...prev.slice(-4), forcedWhisper]);
-        setHasShownRemixMessage(true);
+        hasShownRemixMessageRef.current = true;
         justExitedSilenceRef.current = false;
+        
+        // Schedule removal
+        const lifetime = forcedWhisper.duration * 1000 + 800;
+        const removalTimeout = setTimeout(() => {
+          setActiveWhispers(prev => prev.filter(w => w.id !== whisperId));
+          removalTimeoutsRef.current.delete(whisperId);
+        }, lifetime);
+        removalTimeoutsRef.current.set(whisperId, removalTimeout);
+        
         onWhisperAppear?.();
         return;
       }
@@ -165,8 +184,11 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
       const baseOpacity = idle ? 0.25 : isNearRemix ? 0.4 : 0.35;
       const opacity = baseOpacity + Math.random() * 0.04 - 0.02;
 
+      // Generate truly unique ID for this whisper instance
+      const whisperId = `${whisperData.id}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+      
       const newWhisper: ActiveWhisper = {
-        id: whisperData.id,
+        id: whisperId,
         text: whisperData.text,
         x,
         y,
@@ -175,31 +197,44 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
         duration: 12 + Math.random() * 2,
       };
 
-      if (DEBUG) console.log('[Whispers] Adding:', newWhisper.id, newWhisper.text);
+      if (DEBUG) console.log('[Whispers] Adding:', whisperId, newWhisper.text);
       setActiveWhispers(prev => [...prev, newWhisper]);
       
-      // Update recent IDs for deduplication
+      // Update recent IDs for deduplication (using original comment ID)
       setRecentWhisperIds(prev => [...prev, whisperData.id].slice(-10));
-      setTimeout(() => {
+      
+      // Clear existing dedupe timeout for this comment ID if any
+      const existingDedupeTimeout = dedupeTimeoutsRef.current.get(whisperData.id);
+      if (existingDedupeTimeout) {
+        clearTimeout(existingDedupeTimeout);
+      }
+      
+      const dedupeTimeout = setTimeout(() => {
         setRecentWhisperIds(prev => prev.filter(id => id !== whisperData.id));
+        dedupeTimeoutsRef.current.delete(whisperData.id);
       }, 45000);
+      dedupeTimeoutsRef.current.set(whisperData.id, dedupeTimeout);
 
-      // Remove this whisper after its lifetime
+      // Schedule removal of this whisper after its lifetime
       const lifetime = newWhisper.duration * 1000 + 800;
-      setTimeout(() => {
-        setActiveWhispers(prev => prev.filter(w => w.id !== newWhisper.id));
+      const removalTimeout = setTimeout(() => {
+        setActiveWhispers(prev => prev.filter(w => w.id !== whisperId));
+        removalTimeoutsRef.current.delete(whisperId);
       }, lifetime);
+      removalTimeoutsRef.current.set(whisperId, removalTimeout);
 
       onWhisperAppear?.();
     };
 
     const tick = () => {
+      if (cancelled) return;
+      
       const cadence = computeCadence();
       if (DEBUG) console.log('[Whispers] Tick, cadence:', cadence, 'pool:', whisperPool.length, 'active:', activeWhispersRef.current.length);
       
       generateWhisper();
       
-      setTimeout(() => {
+      tickTimeoutRef.current = setTimeout(() => {
         if (!cancelled) tick();
       }, cadence);
     };
@@ -208,8 +243,22 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
 
     return () => {
       cancelled = true;
+      
+      // Clear tick timeout
+      if (tickTimeoutRef.current) {
+        clearTimeout(tickTimeoutRef.current);
+        tickTimeoutRef.current = null;
+      }
+      
+      // Clear all pending removal timeouts
+      removalTimeoutsRef.current.forEach(timeout => clearTimeout(timeout));
+      removalTimeoutsRef.current.clear();
+      
+      // Clear all pending dedupe timeouts
+      dedupeTimeoutsRef.current.forEach(timeout => clearTimeout(timeout));
+      dedupeTimeoutsRef.current.clear();
     };
-  }, [whisperPool, isRemixSilence, isRebirthPause, hasShownRemixMessage, onWhisperAppear]);
+  }, [whisperPool, isRemixSilence, isRebirthPause, onWhisperAppear]);
 
   // Determine if remix is imminent for visual styling
   const isRemixImminent = countdownMs < 10000;
