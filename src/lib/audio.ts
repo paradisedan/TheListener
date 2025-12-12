@@ -216,36 +216,86 @@ export function createAudioController(config: AudioControllerConfig = {}): Audio
     async setSource(newSrc: string) {
       await initAudio();
       
-      if (!audioElement || !audioContext || !gainNode) return;
+      if (!audioContext || !gainNode) return;
       
       const wasPlaying = playing;
-      const currentTime = audioElement.currentTime;
+      const crossfadeDuration = 1.5; // seconds
       
-      // Fade out
-      gainNode.gain.setTargetAtTime(0, audioContext.currentTime, 0.05);
+      // Create new audio element for crossfade
+      const newAudioElement = new Audio();
+      newAudioElement.src = newSrc;
+      newAudioElement.loop = loop;
+      newAudioElement.muted = currentMuted;
+      newAudioElement.volume = currentVolume;
       
-      await new Promise(resolve => setTimeout(resolve, 150));
+      // Create new audio nodes for the incoming track
+      const newSourceNode = audioContext.createMediaElementSource(newAudioElement);
+      const newGainNode = audioContext.createGain();
+      newGainNode.gain.value = 0; // Start silent
       
-      // Change source
-      audioElement.src = newSrc;
-      audioElement.load();
+      newSourceNode.connect(newGainNode);
+      newGainNode.connect(analyserNode!);
       
-      // Wait for audio to be ready
+      // Wait for new audio to be ready
       await new Promise<void>((resolve) => {
         const onCanPlay = () => {
-          audioElement?.removeEventListener('canplay', onCanPlay);
+          newAudioElement.removeEventListener('canplay', onCanPlay);
           resolve();
         };
-        audioElement?.addEventListener('canplay', onCanPlay);
+        newAudioElement.addEventListener('canplay', onCanPlay);
+        newAudioElement.load();
       });
       
-      // Resume if was playing
+      const now = audioContext.currentTime;
+      const targetGain = currentMuted ? 0 : currentVolume;
+      
       if (wasPlaying) {
-        audioElement.muted = currentMuted;
-        await audioElement.play();
-        playing = true;
-        const targetGain = currentMuted ? 0 : currentVolume;
-        gainNode.gain.setTargetAtTime(targetGain, audioContext.currentTime, 0.1);
+        // Start the new track
+        await newAudioElement.play();
+        
+        // Crossfade: fade out old, fade in new
+        if (gainNode) {
+          gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+          gainNode.gain.linearRampToValueAtTime(0, now + crossfadeDuration);
+        }
+        newGainNode.gain.setValueAtTime(0, now);
+        newGainNode.gain.linearRampToValueAtTime(targetGain, now + crossfadeDuration);
+        
+        // After crossfade completes, clean up old audio and swap references
+        setTimeout(() => {
+          if (audioElement) {
+            audioElement.pause();
+            audioElement.src = '';
+          }
+          if (sourceNode) {
+            sourceNode.disconnect();
+          }
+          if (gainNode) {
+            gainNode.disconnect();
+          }
+          
+          // Swap to new nodes
+          audioElement = newAudioElement;
+          sourceNode = newSourceNode;
+          gainNode = newGainNode;
+        }, crossfadeDuration * 1000 + 50);
+      } else {
+        // Not playing - just swap sources
+        if (audioElement) {
+          audioElement.pause();
+          audioElement.src = '';
+        }
+        if (sourceNode) {
+          sourceNode.disconnect();
+        }
+        if (gainNode) {
+          gainNode.disconnect();
+        }
+        
+        audioElement = newAudioElement;
+        sourceNode = newSourceNode;
+        gainNode = newGainNode;
+        gainNode.gain.value = targetGain;
       }
     },
 
