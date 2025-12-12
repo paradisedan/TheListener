@@ -110,9 +110,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
       const cms = countdownMsRef.current;
       const idle = isIdleRef.current;
       
-      if (cms < 1800000) return 5000; // <30min: 5s (calm buildup)
-      if (idle) return 18000; // Idle: 18s (barely noticeable)
-      return 10000; // Normal: 10s (truly ambient)
+      if (cms < 1800000) return 12000; // <30min: 12s (patient buildup)
+      if (idle) return 30000; // Idle: 30s (barely there)
+      return 18000; // Normal: 18s (truly ambient)
     };
 
     const generateWhisper = () => {
@@ -150,8 +150,8 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
         return;
       }
       
-      // Remove oldest if at max capacity (max 5 whispers)
-      if (activeWhispersRef.current.length >= 5) {
+      // Remove oldest if at max capacity (max 3 whispers for less clutter)
+      if (activeWhispersRef.current.length >= 3) {
         setActiveWhispers(prev => prev.slice(1));
       }
 
@@ -173,15 +173,15 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
       const isNearRemix = cms < 1800000;
       let x: number, y: number;
       if (isNearRemix) {
-        x = 35 + Math.random() * 30;
-        y = 65 + Math.random() * 15;
+        x = 25 + Math.random() * 50;   // Wider horizontal spread
+        y = 55 + Math.random() * 25;   // More vertical spread
       } else {
-        x = 12 + Math.random() * 76;
-        y = 65 + Math.random() * 20;
+        x = 10 + Math.random() * 80;   // Full width usage
+        y = 50 + Math.random() * 30;   // More vertical range
       }
 
       const idle = isIdleRef.current;
-      const baseOpacity = idle ? 0.25 : isNearRemix ? 0.4 : 0.35;
+      const baseOpacity = idle ? 0.35 : isNearRemix ? 0.5 : 0.45;
       const opacity = baseOpacity + Math.random() * 0.04 - 0.02;
 
       // Generate truly unique ID for this whisper instance
@@ -192,9 +192,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
         text: whisperData.text,
         x,
         y,
-        opacity: Math.max(0.25, Math.min(0.4, opacity)),
-        drift: 15 + Math.random() * 10,
-        duration: 12 + Math.random() * 2,
+        opacity: Math.max(0.35, Math.min(0.5, opacity)),
+        drift: 8 + Math.random() * 7,    // Slower, gentler drift
+        duration: 20 + Math.random() * 8, // Much longer on screen (20-28s)
       };
 
       if (DEBUG) console.log('[Whispers] Adding:', whisperId, newWhisper.text);
@@ -281,9 +281,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
             }}
             exit={{ opacity: 0, filter: 'blur(2px)' }}
             transition={{ 
-              opacity: { duration: 1.8, ease: 'easeOut' },
-              y: { duration: 1.8, ease: 'easeOut' },
-              filter: { duration: 1.8, ease: 'easeOut' },
+              opacity: { duration: 3.5, ease: 'easeOut' },
+              y: { duration: whisper.duration, ease: 'linear' }, // Constant slow rise
+              filter: { duration: 2.5, ease: 'easeOut' },
             }}
             style={{
               position: 'absolute',
@@ -293,14 +293,14 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
           >
             <motion.div
               animate={{
-                x: [0, Math.random() * 8 - 4, 0],
+                x: [0, Math.random() * 6 - 3, 0], // Gentler sway
               }}
               transition={{
-                duration: whisper.duration,
+                duration: whisper.duration * 1.5, // Much slower sway
                 ease: 'easeInOut',
                 repeat: Infinity,
               }}
-              className="font-mono text-[13px] md:text-[14px] tracking-[0.06em] text-white/40"
+              className="font-mono text-[14px] md:text-[15px] tracking-[0.08em] text-white/50"
               style={isRemixImminent ? { mixBlendMode: 'screen' } : {}}
             >
               {whisper.text}
