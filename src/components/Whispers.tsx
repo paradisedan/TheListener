@@ -282,14 +282,14 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
             transition={{ 
               opacity: { 
                 duration: whisper.duration, 
-                times: [0, 0.1, 0.85, 1], // 10% fade in, 75% hold, 15% fade out
-                ease: 'easeOut' 
+                times: [0, 0.05, 0.65, 1], // 5% fade in, 60% hold, 35% fade out (long gentle fade)
+                ease: 'easeInOut' 
               },
               y: { duration: whisper.duration, ease: 'linear' },
               filter: { 
                 duration: whisper.duration, 
-                times: [0, 0.1, 0.85, 1],
-                ease: 'easeOut' 
+                times: [0, 0.05, 0.65, 1],
+                ease: 'easeInOut' 
               },
             }}
             style={{
