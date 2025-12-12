@@ -180,7 +180,9 @@ const Index = () => {
       sessionStorage.setItem('hasInteracted', 'true');
     }
     audioController?.play();
+    audioController?.mute(false);
     setIsPlaying(true);
+    setIsMuted(false);
   };
 
   const handlePlayToggle = () => {
