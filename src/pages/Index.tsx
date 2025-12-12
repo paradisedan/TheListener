@@ -44,7 +44,7 @@ const Index = () => {
   const [audioNeedsStart, setAudioNeedsStart] = useState(true);
   const [audioController, setAudioController] = useState<AudioController | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
   const [audioEventGlow, setAudioEventGlow] = useState(0);
   const [rebirthTrigger, setRebirthTrigger] = useState(0);
   const [hasInteracted, setHasInteracted] = useState(() => 
@@ -180,9 +180,7 @@ const Index = () => {
       sessionStorage.setItem('hasInteracted', 'true');
     }
     await audioController?.play();
-    audioController?.mute(false);
     setIsPlaying(true);
-    setIsMuted(false);
   };
 
   const handlePlayToggle = () => {
@@ -225,7 +223,7 @@ const Index = () => {
   useEffect(() => {
     const controller = createAudioController({
       src: currentTrackVersion.src,
-      startMuted: true,
+      startMuted: false,
       loop: true,
       onPlay: () => {
         setIsPlaying(true);

@@ -50,6 +50,14 @@ export function WaveformControls({
     }
   };
 
+  const handleMuteMouseLeave = () => {
+    // Only clear the timer on mouse leave - don't toggle mute
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
   const handleMuteTouchStart = (e: React.TouchEvent) => {
     e.preventDefault();
     handleMuteMouseDown();
@@ -134,7 +142,7 @@ export function WaveformControls({
               <button
                 onMouseDown={handleMuteMouseDown}
                 onMouseUp={handleMuteMouseUp}
-                onMouseLeave={handleMuteMouseUp}
+                onMouseLeave={handleMuteMouseLeave}
                 onTouchStart={handleMuteTouchStart}
                 onTouchEnd={handleMuteTouchEnd}
                 className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full p-2 transition-transform hover:scale-110"
