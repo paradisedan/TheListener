@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward } from 'lucide-react';
 import { AudioController } from '@/lib/audio';
 import { VolumeSlider } from './VolumeSlider';
 
@@ -93,6 +93,16 @@ export function WaveformControls({ audioController, isVisible, onTogglePlay }: W
             transition={{ duration: 0.25 }}
             className="flex items-center gap-6 md:gap-8 pointer-events-auto"
           >
+            {/* Skip Back Button */}
+            <button
+              onClick={() => audioController.skip(-5)}
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full p-2 transition-transform hover:scale-110"
+              aria-label="Skip backward 5 seconds"
+              tabIndex={0}
+            >
+              <SkipBack className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+            </button>
+
             {/* Play/Pause Button */}
             <button
               onClick={handlePlayPauseClick}
@@ -106,6 +116,16 @@ export function WaveformControls({ audioController, isVisible, onTogglePlay }: W
               ) : (
                 <Play className="w-7 h-7 md:w-8 md:h-8 text-primary" />
               )}
+            </button>
+
+            {/* Skip Forward Button */}
+            <button
+              onClick={() => audioController.skip(5)}
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full p-2 transition-transform hover:scale-110"
+              aria-label="Skip forward 5 seconds"
+              tabIndex={0}
+            >
+              <SkipForward className="w-5 h-5 md:w-6 md:h-6 text-primary" />
             </button>
 
             {/* Mute Button */}
