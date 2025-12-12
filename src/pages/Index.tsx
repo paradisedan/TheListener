@@ -144,15 +144,18 @@ const Index = () => {
   // Update waveform amplitudes from real audio frequency data with symmetric frequency mapping
   useEffect(() => {
     let animationFrame: number;
-    const smoothingFactor = 0.25;
-    const bassSmoothingFactor = 0.3;
+    const smoothingFactor = 0.35; // Faster response
+    const bassSmoothingFactor = 0.4;
     const barCount = 40;
     const halfBars = barCount / 2;
     let currentBass = 0;
     
     const updateAmplitudes = () => {
-      if (audioController && isPlaying) {
-        const analyserData = audioController.getAnalyserData();
+      const analyserData = audioController?.getAnalyserData();
+      // Check if we have actual data (not all zeros)
+      const hasData = analyserData && analyserData.some(v => v > 5);
+      
+      if (hasData && analyserData) {
         const dataLength = analyserData.length;
         
         // Extract bass (first ~8 bins, roughly 0-350Hz at 44.1kHz sample rate)
@@ -172,12 +175,13 @@ const Index = () => {
             const freqPosition = 1 - distanceFromCenter;
             const binIndex = Math.floor(freqPosition * dataLength * 0.75);
             const target = analyserData[binIndex] / 255;
-            const boostedTarget = distanceFromCenter > 0.7 ? target * 1.2 : target;
+            const boostedTarget = distanceFromCenter > 0.7 ? target * 1.3 : target;
             return current + (Math.min(1, boostedTarget) - current) * smoothingFactor;
           });
         });
       } else {
-        setBassAmplitude(prev => prev * 0.92);
+        currentBass = currentBass * 0.92;
+        setBassAmplitude(currentBass);
         setWaveformAmplitudes(prev => prev.map(v => v * 0.92 + 0.02));
       }
       animationFrame = requestAnimationFrame(updateAmplitudes);
@@ -185,7 +189,7 @@ const Index = () => {
     
     animationFrame = requestAnimationFrame(updateAmplitudes);
     return () => cancelAnimationFrame(animationFrame);
-  }, [audioController, isPlaying]);
+  }, [audioController]);
 
   // Add new comments periodically
   useEffect(() => {

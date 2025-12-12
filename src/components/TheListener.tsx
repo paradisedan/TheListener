@@ -41,10 +41,10 @@ export function TheListener({
     }
   }, [audioEventGlow]);
 
-  // Bass-reactive ear animation values
-  const bassScale = 1 + bassAmplitude * 0.15; // Ears scale up with bass
-  const bassTilt = bassAmplitude * 8; // Ears tilt outward with bass hits
-  const bassGlow = bassAmplitude * 0.4; // Extra glow on bass
+  // Bass-reactive ear animation values - amplified for visibility
+  const bassScale = 1 + bassAmplitude * 0.25; // Ears scale up with bass (increased)
+  const bassTilt = bassAmplitude * 15; // Ears tilt outward with bass hits (increased)
+  const bassGlow = bassAmplitude * 0.6; // Extra glow on bass (increased)
 
   const baseOpacity = state === 'dormant' ? 0.30 : 0.50;
   const earTilt = (state === 'typing' || state === 'focused' ? -3 : 0) + bassTilt;
