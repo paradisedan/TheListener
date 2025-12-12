@@ -181,8 +181,8 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
       }
 
       const idle = isIdleRef.current;
-      const baseOpacity = idle ? 0.35 : isNearRemix ? 0.5 : 0.45;
-      const opacity = baseOpacity + Math.random() * 0.04 - 0.02;
+      const baseOpacity = idle ? 0.85 : isNearRemix ? 1.0 : 0.9;
+      const opacity = baseOpacity + Math.random() * 0.1 - 0.05;
 
       // Generate truly unique ID for this whisper instance
       const whisperId = `${whisperData.id}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
@@ -192,9 +192,9 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
         text: whisperData.text,
         x,
         y,
-        opacity: Math.max(0.35, Math.min(0.5, opacity)),
-        drift: 8 + Math.random() * 7,    // Slower, gentler drift
-        duration: 20 + Math.random() * 8, // Much longer on screen (20-28s)
+        opacity: Math.max(0.8, Math.min(1.0, opacity)), // 80-100% opacity for readability
+        drift: 8 + Math.random() * 7,
+        duration: 20 + Math.random() * 8,
       };
 
       if (DEBUG) console.log('[Whispers] Adding:', whisperId, newWhisper.text);
@@ -275,15 +275,22 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
             key={whisper.id}
             initial={{ opacity: 0, y: 5, filter: 'blur(3px)' }}
             animate={{ 
-              opacity: whisper.opacity,
+              opacity: [0, whisper.opacity, whisper.opacity, 0], // Fade in, hold, fade out
               y: -whisper.drift,
-              filter: 'blur(0px)',
+              filter: ['blur(3px)', 'blur(0px)', 'blur(0px)', 'blur(2px)'],
             }}
-            exit={{ opacity: 0, filter: 'blur(2px)' }}
             transition={{ 
-              opacity: { duration: 3.5, ease: 'easeOut' },
-              y: { duration: whisper.duration, ease: 'linear' }, // Constant slow rise
-              filter: { duration: 2.5, ease: 'easeOut' },
+              opacity: { 
+                duration: whisper.duration, 
+                times: [0, 0.1, 0.85, 1], // 10% fade in, 75% hold, 15% fade out
+                ease: 'easeOut' 
+              },
+              y: { duration: whisper.duration, ease: 'linear' },
+              filter: { 
+                duration: whisper.duration, 
+                times: [0, 0.1, 0.85, 1],
+                ease: 'easeOut' 
+              },
             }}
             style={{
               position: 'absolute',
@@ -293,14 +300,14 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
           >
             <motion.div
               animate={{
-                x: [0, Math.random() * 6 - 3, 0], // Gentler sway
+                x: [0, Math.random() * 6 - 3, 0],
               }}
               transition={{
-                duration: whisper.duration * 1.5, // Much slower sway
+                duration: whisper.duration * 1.5,
                 ease: 'easeInOut',
                 repeat: Infinity,
               }}
-              className="font-mono text-[14px] md:text-[15px] tracking-[0.08em] text-white/50"
+              className="font-mono text-[14px] md:text-[15px] tracking-[0.08em] text-white"
               style={isRemixImminent ? { mixBlendMode: 'screen' } : {}}
             >
               {whisper.text}
