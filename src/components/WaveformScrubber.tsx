@@ -205,6 +205,10 @@ export function WaveformScrubber({
           {waveformAmplitudes.map((amplitude, i) => {
             const baseOpacity = isFlashing ? 0.95 : (isActive || isDragging ? 0.7 : 0.25);
             const barOpacity = Math.max(0.05, amplitude * baseOpacity);
+            // Glow intensity scales with amplitude
+            const glowIntensity = amplitude * (isActive ? 0.8 : 0.5);
+            const glowBlur = Math.floor(amplitude * 8 + 2);
+            const glowSpread = Math.floor(amplitude * 3);
             
             return (
               <motion.div
@@ -214,6 +218,7 @@ export function WaveformScrubber({
                   height: `${amplitude * 50 + 16}px`,
                   opacity: barOpacity,
                   scaleY: isFlashing ? 1.15 : 1,
+                  boxShadow: `0 0 ${glowBlur}px ${glowSpread}px hsla(var(--primary) / ${glowIntensity})`,
                 }}
                 transition={{
                   duration: isFlashing ? 0.1 : (isDragging ? 0 : (isActive ? 0.25 : 0.3)),
