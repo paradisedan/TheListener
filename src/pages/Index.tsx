@@ -186,7 +186,11 @@ const Index = () => {
   const handlePlayToggle = () => {
     if (!audioController) return;
     audioController.togglePlay();
-    setIsPlaying(audioController.isPlaying());
+  };
+
+  const handleMuteToggle = () => {
+    if (!audioController) return;
+    audioController.toggleMute();
   };
 
   const handleSeek = () => {
@@ -307,7 +311,10 @@ const Index = () => {
         <WaveformControls
           audioController={audioController}
           isVisible={controlsVisible}
+          isPlaying={isPlaying}
+          isMuted={isMuted}
           onTogglePlay={handlePlayToggle}
+          onToggleMute={handleMuteToggle}
         />
       )}
 
