@@ -7,24 +7,26 @@ import { VolumeSlider } from './VolumeSlider';
 interface WaveformControlsProps {
   audioController: AudioController;
   isVisible: boolean;
+  isPlaying: boolean;
+  isMuted: boolean;
   onTogglePlay: () => void;
+  onToggleMute: () => void;
 }
 
-export function WaveformControls({ audioController, isVisible, onTogglePlay }: WaveformControlsProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+export function WaveformControls({ 
+  audioController, 
+  isVisible, 
+  isPlaying,
+  isMuted,
+  onTogglePlay,
+  onToggleMute
+}: WaveformControlsProps) {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hideSliderTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    setIsPlaying(audioController.isPlaying());
-    setIsMuted(audioController.isMuted());
-  }, [audioController]);
-
   const handlePlayPauseClick = () => {
     onTogglePlay();
-    setIsPlaying(!isPlaying);
   };
 
   const handleMuteMouseDown = () => {
@@ -44,8 +46,7 @@ export function WaveformControls({ audioController, isVisible, onTogglePlay }: W
 
     // If slider didn't show, it was a quick tap - toggle mute
     if (!showVolumeSlider) {
-      audioController.toggleMute();
-      setIsMuted(!isMuted);
+      onToggleMute();
     }
   };
 
