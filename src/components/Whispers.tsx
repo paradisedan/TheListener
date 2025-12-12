@@ -276,7 +276,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
         {activeWhispers.map((whisper) => (
           <motion.div
             key={whisper.id}
-            initial={{ opacity: 0, y: 0, filter: 'blur(3px)' }}
+            initial={{ opacity: 0, y: 0, filter: 'blur(2px)' }}
             animate={{ 
               opacity: whisper.opacity,
               y: -whisper.drift,
@@ -285,7 +285,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
             exit={{ 
               opacity: 0, 
               y: -whisper.drift - 15,
-              filter: 'blur(3px)',
+              filter: 'blur(2px)',
               transition: {
                 duration: whisper.fadeOutDuration,
                 ease: 'easeInOut',
@@ -294,7 +294,7 @@ export function Whispers({ comments, countdownMs, isIdle, onWhisperAppear, force
             transition={{ 
               opacity: { duration: whisper.fadeInDuration, ease: 'easeOut' },
               y: { duration: whisper.fadeInDuration + whisper.holdDuration, ease: 'linear' },
-              filter: { duration: whisper.fadeInDuration * 0.8, ease: 'easeOut' },
+              filter: { duration: 2, ease: 'easeOut' },
             }}
             style={{
               position: 'absolute',
