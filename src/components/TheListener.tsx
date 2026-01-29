@@ -25,15 +25,29 @@ export function TheListener({
   const [whisperGlowActive, setWhisperGlowActive] = useState(0);
   const [audioGlowActive, setAudioGlowActive] = useState(0);
   const [isWakingUp, setIsWakingUp] = useState(false);
+  const [isFallingAsleep, setIsFallingAsleep] = useState(false);
   const prevStateRef = useRef(state);
 
-  // Handle wake-up transition from dormant
+  // Handle wake-up and falling asleep transitions
   useEffect(() => {
+    // Waking up: dormant → any active state
     if (prevStateRef.current === 'dormant' && state !== 'dormant') {
+      setIsFallingAsleep(false);
       setIsWakingUp(true);
       const timer = setTimeout(() => setIsWakingUp(false), 800);
+      prevStateRef.current = state;
       return () => clearTimeout(timer);
     }
+    
+    // Falling asleep: any active state → dormant
+    if (prevStateRef.current !== 'dormant' && state === 'dormant') {
+      setIsWakingUp(false);
+      setIsFallingAsleep(true);
+      const timer = setTimeout(() => setIsFallingAsleep(false), 1200);
+      prevStateRef.current = state;
+      return () => clearTimeout(timer);
+    }
+    
     prevStateRef.current = state;
   }, [state]);
 
@@ -79,6 +93,12 @@ export function TheListener({
                 opacity: [0.15, 0.7, 0.5],
                 scale: [0.95, 1.08, 1],
                 filter: ['blur(20px)', 'blur(10px)', 'blur(14px)'],
+              }
+            : isFallingAsleep
+            ? {
+                opacity: [baseOpacity + audioBoost, baseOpacity * 0.5, baseOpacity * muteOpacity],
+                scale: [1, 0.98, dormantScale],
+                filter: ['blur(14px)', 'blur(18px)', 'blur(20px)'],
               }
             : state === 'dormant'
             ? {
@@ -126,6 +146,8 @@ export function TheListener({
         transition={
           isWakingUp
             ? { duration: 0.8, ease: 'easeOut', times: [0, 0.4, 1] }
+            : isFallingAsleep
+            ? { duration: 1.2, ease: [0.4, 0, 0.2, 1], times: [0, 0.4, 1] }
             : state === 'submitting'
             ? { duration: 1.4, ease: 'easeInOut', times: [0, 0.3, 0.6, 1] }
             : state === 'rebirth'
