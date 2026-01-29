@@ -86,7 +86,7 @@ export function TheListener({
       {/* Main Listener Container */}
       <motion.div
         className="fixed inset-0 flex items-center justify-center pointer-events-none"
-        style={{ zIndex: 5 }}
+        style={{ zIndex: 5, transform: 'translateY(12vh)' }}
         animate={
           isWakingUp
             ? {
