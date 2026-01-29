@@ -46,11 +46,14 @@ export function TheListener({
   const bassTilt = bassAmplitude * 150; // Ears tilt up to 15° outward with bass hits
   const bassGlow = bassAmplitude * 4; // Strong glow boost on bass
 
-  const baseOpacity = state === 'dormant' ? 0.30 : 0.50;
-  const earTilt = (state === 'typing' || state === 'focused' ? -3 : 0) + bassTilt;
+  const baseOpacity = state === 'dormant' ? 0.15 : 0.50;
+  // Dormant: ears droop inward, typing/focused: ears perk outward, otherwise bass-reactive
+  const dormantDroop = state === 'dormant' ? 8 : 0; // Ears tilt inward when dormant
+  const earTilt = (state === 'typing' || state === 'focused' ? -3 : dormantDroop) + (state === 'dormant' ? 0 : bassTilt);
   const keystrokeBoost = keystrokePulse * 0.15;
-  const audioBoost = audioPlaying ? 0.20 : 0;
+  const audioBoost = audioPlaying && state !== 'dormant' ? 0.20 : 0;
   const muteOpacity = audioMuted ? 0.4 : 1;
+  const dormantScale = state === 'dormant' ? 0.95 : 1; // Slightly shrink when dormant
 
   return (
     <>
@@ -59,7 +62,13 @@ export function TheListener({
         className="fixed inset-0 flex items-center justify-center pointer-events-none"
         style={{ zIndex: 5 }}
         animate={
-          state === 'idle' || state === 'dormant'
+          state === 'dormant'
+            ? {
+                opacity: [baseOpacity * muteOpacity, (baseOpacity + 0.03) * muteOpacity, baseOpacity * muteOpacity],
+                scale: [dormantScale, dormantScale * 1.01, dormantScale],
+                filter: 'blur(20px)',
+              }
+            : state === 'idle'
             ? {
                 opacity: [(baseOpacity + audioBoost + audioGlowActive) * muteOpacity, (baseOpacity + 0.08 + audioBoost + audioGlowActive) * muteOpacity, (baseOpacity + audioBoost + audioGlowActive) * muteOpacity],
                 scale: [1, 1.03, 1],
@@ -101,6 +110,8 @@ export function TheListener({
             ? { duration: 1.4, ease: 'easeInOut', times: [0, 0.3, 0.6, 1] }
             : state === 'rebirth'
             ? { duration: 4, ease: 'easeInOut', times: [0, 0.28, 0.55, 0.85, 1] }
+            : state === 'dormant'
+            ? { duration: 20, ease: 'easeInOut', repeat: Infinity } // Very slow breathing when dormant
             : state === 'focused'
             ? { duration: 0.4, ease: 'easeOut' }
             : state === 'typing'
