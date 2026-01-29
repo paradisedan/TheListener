@@ -155,9 +155,6 @@ const Index = () => {
       // Check if we have actual data (not all zeros)
       const hasData = analyserData && analyserData.some(v => v > 10);
       
-      // DEBUG: Log analyser data to verify it's working
-      console.log('Analyser:', analyserData?.[0], analyserData?.[10], analyserData?.[30], 'hasData:', hasData);
-      
       if (hasData && analyserData) {
         const dataLength = analyserData.length;
         
