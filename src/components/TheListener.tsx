@@ -42,12 +42,9 @@ export function TheListener({
   }, [audioEventGlow]);
 
   // Bass-reactive ear animation values - dramatically amplified for visibility
-  const bassScale = 1 + bassAmplitude * 0.4; // Ears scale up with bass (boosted)
-  const bassTilt = bassAmplitude * 25; // Ears tilt outward with bass hits (boosted)
-  const bassGlow = bassAmplitude * 0.8; // Extra glow on bass (boosted)
-  
-  // DEBUG: Log bass values to verify animation
-  console.log('TheListener bass:', bassAmplitude.toFixed(2), 'scale:', bassScale.toFixed(2), 'tilt:', bassTilt.toFixed(1));
+  const bassScale = 1 + bassAmplitude * 3; // Ears scale up to 30% with bass
+  const bassTilt = bassAmplitude * 150; // Ears tilt up to 15° outward with bass hits
+  const bassGlow = bassAmplitude * 4; // Strong glow boost on bass
 
   const baseOpacity = state === 'dormant' ? 0.30 : 0.50;
   const earTilt = (state === 'typing' || state === 'focused' ? -3 : 0) + bassTilt;
@@ -121,10 +118,11 @@ export function TheListener({
           }}
         >
           {/* Left ear - bass reactive */}
+          {/* Left ear - bass reactive */}
           <motion.path
             d="M 200 400 Q 150 200 180 50 Q 190 20 200 50 Q 220 180 220 350"
             stroke={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
-            strokeWidth={state === 'rebirth' ? "8" : "6"}
+            strokeWidth={state === 'rebirth' ? "8" : `${6 + bassAmplitude * 8}`}
             fill="none"
             strokeLinecap="round"
             style={{
@@ -150,10 +148,11 @@ export function TheListener({
           />
 
           {/* Right ear - bass reactive */}
+          {/* Right ear - bass reactive */}
           <motion.path
             d="M 400 400 Q 450 200 420 50 Q 410 20 400 50 Q 380 180 380 350"
             stroke={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
-            strokeWidth={state === 'rebirth' ? "8" : "6"}
+            strokeWidth={state === 'rebirth' ? "8" : `${6 + bassAmplitude * 8}`}
             fill="none"
             strokeLinecap="round"
             style={{
