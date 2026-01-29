@@ -1,137 +1,84 @@
 
+## Plan: Remove Waveform Visualization
 
-## Plan: Head Bass Reactivity, Waveform Visibility, and Wake-Up Transition
+### What We're Removing
 
-### Overview
+The waveform visualization consists of two components:
+- **WaveformScrubber** - The 40-bar visual equalizer in the center of the screen with scrubbing/click-to-play functionality
+- **WaveformControls** - The play/pause, skip, and mute buttons that appear on hover
 
-Three polish enhancements to make the listening experience more alive and responsive:
+### What We're Keeping
 
-1. **Head bass reactivity** - The head outline pulses with music
-2. **Waveform visibility boost** - Better visibility in idle state  
-3. **Wake-up transition** - Smooth awakening from dormant mode
+- **Audio frequency analysis** - The `updateAmplitudes` loop in Index.tsx that computes `bassAmplitude` stays, as it powers TheListener's ear/head reactivity
+- **TheListener reactivity** - All the bass-driven ear tilting, scaling, and glow effects remain fully functional
+- **Keyboard controls** - Space to play/pause, arrow keys to seek, M to mute all continue to work
 
----
+### Changes
 
-### 1. Head Bass Reactivity
+#### 1. `src/pages/Index.tsx`
 
-**File:** `src/components/TheListener.tsx`
-
-Currently, only the ears respond to bass. The head outline (ellipse at lines 192-214) has a static opacity of 0.6. We'll add subtle bass-driven pulsing.
-
-**Changes:**
-
-Add bass-reactive properties to the head ellipse:
-
+**Remove imports:**
 ```typescript
-// Head outline - add bass reactivity
-<motion.ellipse
-  cx="300"
-  cy="450"
-  rx="120"
-  ry="140"
-  stroke={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
-  strokeWidth={state === 'rebirth' ? "6" : `${5 + bassAmplitude * 3}`}  // Stroke pulses 5-8
-  fill="none"
-  style={{
-    filter: state === 'rebirth' ? 'none' : `drop-shadow(0 0 ${4 + bassGlow * 10}px hsl(168 95% 82% / ${0.2 + bassGlow * 0.5}))`,
-  }}
-  animate={
-    state === 'rebirth'
-      ? { opacity: [0, 0.8, 0.75, 0, 0.3], scale: 1 }
-      : {
-          opacity: 0.6 + bassAmplitude * 0.3,  // Opacity pulses 0.6-0.9
-          scale: 1 + bassAmplitude * 0.08,      // Subtle 8% scale pulse
-        }
-  }
-  transition={
-    state === 'rebirth'
-      ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
-      : { duration: 0.15, ease: 'easeOut' }  // Quick response
-  }
-/>
+// DELETE these lines:
+import { WaveformScrubber } from '@/components/WaveformScrubber';
+import { WaveformControls } from '@/components/WaveformControls';
 ```
 
-Also add subtle bass reactivity to the inner glow ellipse for extra depth.
-
----
-
-### 2. Waveform Idle Visibility
-
-**File:** `src/components/WaveformScrubber.tsx`
-
-Currently at line 206, idle opacity is 0.25:
+**Remove state variables (no longer needed):**
 ```typescript
-const baseOpacity = isFlashing ? 0.95 : (isActive || isDragging ? 0.7 : 0.25);
+// DELETE:
+const [controlsVisible, setControlsVisible] = useState(false);
+const [versionFlash, setVersionFlash] = useState(0);
 ```
 
-**Change:**
+**Simplify idle timer effect:**
+Remove the `controlsTimer` logic since controls are gone.
 
-Increase idle opacity from 0.25 to 0.4:
+**Remove versionFlash from handleVersionChange:**
 ```typescript
-const baseOpacity = isFlashing ? 0.95 : (isActive || isDragging ? 0.7 : 0.4);
+// DELETE:
+setVersionFlash(prev => prev + 1);
 ```
 
-This makes the waveform visible enough to remain a presence without being distracting.
+**Remove JSX for waveform components:**
+```jsx
+{/* DELETE: Interactive waveform visualization with scrubbing */}
+<WaveformScrubber ... />
 
----
-
-### 3. Wake-Up Transition
-
-**File:** `src/components/TheListener.tsx`
-
-Currently, transitioning out of dormant state snaps immediately to idle. We need to track when we're "waking up" and play a transition animation.
-
-**Changes:**
-
-Add state tracking for wake-up:
-```typescript
-const [isWakingUp, setIsWakingUp] = useState(false);
-const prevStateRef = useRef(state);
-
-useEffect(() => {
-  // Detect transition from dormant to any active state
-  if (prevStateRef.current === 'dormant' && state !== 'dormant') {
-    setIsWakingUp(true);
-    const timer = setTimeout(() => setIsWakingUp(false), 800);
-    return () => clearTimeout(timer);
-  }
-  prevStateRef.current = state;
-}, [state]);
+{/* DELETE: Waveform controls (play/pause, mute, volume) */}
+{audioController && (
+  <WaveformControls ... />
+)}
 ```
 
-Add wake-up animation branch in the main motion.div:
-```typescript
-animate={
-  isWakingUp
-    ? {
-        opacity: [0.15, 0.7, 0.5],
-        scale: [0.95, 1.08, 1],
-        filter: ['blur(20px)', 'blur(10px)', 'blur(14px)'],
-      }
-    : state === 'dormant'
-    ? { /* existing dormant animation */ }
-    // ... rest of states
-}
-transition={
-  isWakingUp
-    ? { duration: 0.8, ease: 'easeOut', times: [0, 0.4, 1] }
-    : // ... rest of transitions
-}
-```
+**Keep the audio analysis loop** - The `updateAmplitudes` useEffect stays because `bassAmplitude` drives TheListener.
 
----
+#### 2. Delete files (optional cleanup)
+
+These files can be deleted since they're no longer used:
+- `src/components/WaveformScrubber.tsx`
+- `src/components/WaveformControls.tsx`
+- `src/components/VolumeSlider.tsx` (only used by WaveformControls)
 
 ### Summary
 
-| File | Change |
-|------|--------|
-| `TheListener.tsx` | Add bass-reactive strokeWidth, opacity, scale, and glow to head ellipse |
-| `TheListener.tsx` | Add wake-up state tracking and 0.8s awakening animation |
-| `WaveformScrubber.tsx` | Increase idle opacity from 0.25 to 0.4 |
+| Change | Files |
+|--------|-------|
+| Remove waveform imports and JSX | `Index.tsx` |
+| Remove unused state (`controlsVisible`, `versionFlash`) | `Index.tsx` |
+| Simplify idle timer (remove controls timer) | `Index.tsx` |
+| Delete unused components | `WaveformScrubber.tsx`, `WaveformControls.tsx`, `VolumeSlider.tsx` |
 
-### Expected Result
+### What Still Works After Removal
 
-- Head outline subtly pulses with bass (8% scale, 30% opacity boost, stroke thickening)
-- Waveform is clearly visible even when idle (40% opacity vs 25%)
-- Exiting dormant state triggers a smooth "awakening" with scale-up and de-blur
+- Audio plays automatically after overlay click
+- Keyboard controls (Space, arrows, M)
+- TheListener responds to bass with ear tilts, head pulsing, glow
+- All state transitions (idle, focused, typing, dormant, rebirth)
+- Whispers, PlayerBar, PromptSection, etc.
 
+### Interaction Change
+
+Without the waveform, users lose the visual scrubber and on-screen play/pause buttons. They can still control playback via:
+- **Keyboard**: Space (play/pause), Left/Right arrows (seek), M (mute)
+- **PlayerBar**: Already has version switching; could add transport controls if needed later
