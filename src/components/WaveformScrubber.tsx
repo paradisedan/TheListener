@@ -203,7 +203,7 @@ export function WaveformScrubber({
           onClick={handleClick}
         >
           {waveformAmplitudes.map((amplitude, i) => {
-            const baseOpacity = isFlashing ? 0.95 : (isActive || isDragging ? 0.7 : 0.25);
+            const baseOpacity = isFlashing ? 0.95 : (isActive || isDragging ? 0.7 : 0.4);
             const barOpacity = Math.max(0.05, amplitude * baseOpacity);
             // Glow intensity scales with amplitude
             const glowIntensity = amplitude * (isActive ? 0.8 : 0.5);
