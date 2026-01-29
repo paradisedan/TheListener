@@ -16,10 +16,12 @@ export function ListenerFocusOverlay({
   onClose,
   listenerState,
   waveformAmplitudes,
-  bassAmplitude,
+  bassAmplitude: rawBassAmplitude,
   audioPlaying,
   audioMuted,
 }: ListenerFocusOverlayProps) {
+  // Guard against undefined/NaN values
+  const bassAmplitude = Number.isFinite(rawBassAmplitude) ? rawBassAmplitude : 0;
   return (
     <AnimatePresence>
       {isActive && (
@@ -44,15 +46,15 @@ export function ListenerFocusOverlay({
               <div
                 className="rounded-full"
                 style={{
-                  width: `${300 + bassAmplitude * 600}px`,
-                  height: `${300 + bassAmplitude * 600}px`,
-                  background: `radial-gradient(circle, hsl(168 95% 82% / ${0.15 + bassAmplitude * 0.4}) 0%, hsl(168 95% 82% / ${0.05 + bassAmplitude * 0.15}) 40%, transparent 70%)`,
+                  width: `${350 + bassAmplitude * 800}px`,
+                  height: `${350 + bassAmplitude * 800}px`,
+                  background: `radial-gradient(circle, hsl(168 95% 82% / ${0.2 + bassAmplitude * 0.5}) 0%, hsl(168 95% 82% / ${0.08 + bassAmplitude * 0.2}) 35%, transparent 65%)`,
                   boxShadow: `
-                    0 0 ${60 + bassAmplitude * 200}px ${30 + bassAmplitude * 100}px hsl(168 95% 82% / ${0.1 + bassAmplitude * 0.3}),
-                    0 0 ${120 + bassAmplitude * 300}px ${60 + bassAmplitude * 150}px hsl(168 80% 70% / ${0.05 + bassAmplitude * 0.15}),
-                    inset 0 0 ${50 + bassAmplitude * 100}px hsl(168 95% 82% / ${0.1 + bassAmplitude * 0.2})
+                    0 0 ${80 + bassAmplitude * 300}px ${40 + bassAmplitude * 150}px hsl(168 95% 82% / ${0.15 + bassAmplitude * 0.4}),
+                    0 0 ${160 + bassAmplitude * 400}px ${80 + bassAmplitude * 200}px hsl(168 80% 70% / ${0.08 + bassAmplitude * 0.2}),
+                    inset 0 0 ${60 + bassAmplitude * 120}px hsl(168 95% 82% / ${0.15 + bassAmplitude * 0.25})
                   `,
-                  transition: 'all 0.05s ease-out',
+                  transition: 'all 0.04s ease-out',
                 }}
               />
             </div>
@@ -63,13 +65,33 @@ export function ListenerFocusOverlay({
               style={{ transform: 'translateY(12vh)' }}
             >
               <div
-                className="rounded-full border-2"
+                className="rounded-full"
                 style={{
-                  width: `${100 + bassAmplitude * 800}px`,
-                  height: `${100 + bassAmplitude * 800}px`,
-                  borderColor: `hsl(168 95% 82% / ${bassAmplitude * 0.3})`,
-                  boxShadow: `0 0 ${bassAmplitude * 60}px hsl(168 95% 82% / ${bassAmplitude * 0.2})`,
-                  transition: 'all 0.04s ease-out',
+                  width: `${150 + bassAmplitude * 1000}px`,
+                  height: `${150 + bassAmplitude * 1000}px`,
+                  border: `3px solid hsl(168 95% 82% / ${0.1 + bassAmplitude * 0.4})`,
+                  boxShadow: `
+                    0 0 ${20 + bassAmplitude * 80}px hsl(168 95% 82% / ${0.1 + bassAmplitude * 0.3}),
+                    inset 0 0 ${10 + bassAmplitude * 40}px hsl(168 95% 82% / ${0.05 + bassAmplitude * 0.15})
+                  `,
+                  transition: 'all 0.03s ease-out',
+                }}
+              />
+            </div>
+
+            {/* Tertiary outer ring - even more dramatic expansion */}
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ transform: 'translateY(12vh)' }}
+            >
+              <div
+                className="rounded-full"
+                style={{
+                  width: `${80 + bassAmplitude * 1200}px`,
+                  height: `${80 + bassAmplitude * 1200}px`,
+                  border: `2px solid hsl(168 95% 82% / ${bassAmplitude * 0.25})`,
+                  boxShadow: `0 0 ${bassAmplitude * 100}px hsl(168 95% 82% / ${bassAmplitude * 0.15})`,
+                  transition: 'all 0.025s ease-out',
                 }}
               />
             </div>
