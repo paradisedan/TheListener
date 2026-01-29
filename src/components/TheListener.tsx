@@ -67,10 +67,13 @@ export function TheListener({
     }
   }, [audioEventGlow]);
 
+  // Guard against undefined/NaN values
+  const safeBassAmplitude = Number.isFinite(bassAmplitude) ? bassAmplitude : 0;
+  
   // Bass-reactive ear animation values - dramatically amplified for visibility
-  const bassScale = 1 + bassAmplitude * 3; // Ears scale up to 30% with bass
-  const bassTilt = bassAmplitude * 150; // Ears tilt up to 15° outward with bass hits
-  const bassGlow = bassAmplitude * 4; // Strong glow boost on bass
+  const bassScale = 1 + safeBassAmplitude * 3; // Ears scale up to 30% with bass
+  const bassTilt = safeBassAmplitude * 150; // Ears tilt up to 15° outward with bass hits
+  const bassGlow = safeBassAmplitude * 4; // Strong glow boost on bass
 
   const baseOpacity = state === 'dormant' ? 0.15 : 0.50;
   // Dormant: ears droop inward, typing/focused: ears perk outward, otherwise bass-reactive
@@ -175,16 +178,17 @@ export function TheListener({
           <motion.path
             d="M 200 400 Q 150 200 180 50 Q 190 20 200 50 Q 220 180 220 350"
             stroke={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
-            strokeWidth={state === 'rebirth' ? "8" : `${6 + bassAmplitude * 8}`}
+            strokeWidth={state === 'rebirth' ? "8" : `${6 + safeBassAmplitude * 8}`}
             fill="none"
             strokeLinecap="round"
-            initial={{ opacity: 0.85 }}
+            initial={{ opacity: 0.85, d: "M 200 400 Q 150 200 180 50 Q 190 20 200 50 Q 220 180 220 350" }}
             style={{
               filter: `drop-shadow(0 0 ${8 + bassGlow * 20}px hsl(168 95% 82% / ${0.3 + bassGlow}))`,
             }}
             animate={
               state === 'rebirth'
                 ? {
+                    d: "M 200 400 Q 150 200 180 50 Q 190 20 200 50 Q 220 180 220 350",
                     opacity: [0, 0.95, 0.9, 0, 0.4],
                     scale: 1,
                   }
@@ -206,16 +210,17 @@ export function TheListener({
           <motion.path
             d="M 400 400 Q 450 200 420 50 Q 410 20 400 50 Q 380 180 380 350"
             stroke={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
-            strokeWidth={state === 'rebirth' ? "8" : `${6 + bassAmplitude * 8}`}
+            strokeWidth={state === 'rebirth' ? "8" : `${6 + safeBassAmplitude * 8}`}
             fill="none"
             strokeLinecap="round"
-            initial={{ opacity: 0.85 }}
+            initial={{ opacity: 0.85, d: "M 400 400 Q 450 200 420 50 Q 410 20 400 50 Q 380 180 380 350" }}
             style={{
               filter: `drop-shadow(0 0 ${8 + bassGlow * 20}px hsl(168 95% 82% / ${0.3 + bassGlow}))`,
             }}
             animate={
               state === 'rebirth'
                 ? {
+                    d: "M 400 400 Q 450 200 420 50 Q 410 20 400 50 Q 380 180 380 350",
                     opacity: [0, 0.95, 0.9, 0, 0.4],
                     scale: 1,
                   }
@@ -239,7 +244,7 @@ export function TheListener({
             rx="120"
             ry="140"
             stroke={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
-            strokeWidth={state === 'rebirth' ? "6" : `${5 + bassAmplitude * 3}`}
+            strokeWidth={state === 'rebirth' ? "6" : `${5 + safeBassAmplitude * 3}`}
             fill="none"
             initial={{ opacity: 0.6 }}
             style={{
@@ -252,8 +257,8 @@ export function TheListener({
                     scale: 1,
                   }
                 : {
-                    opacity: 0.6 + bassAmplitude * 0.3,
-                    scale: 1 + bassAmplitude * 0.08,
+                    opacity: 0.6 + safeBassAmplitude * 0.3,
+                    scale: 1 + safeBassAmplitude * 0.08,
                   }
             }
             transition={
@@ -277,8 +282,8 @@ export function TheListener({
                     opacity: [0, 0.5, 0.45, 0, 0.05],
                   }
                 : {
-                    opacity: 0.05 + whisperGlowActive + bassAmplitude * 0.1,
-                    scale: 1 + bassAmplitude * 0.05,
+                    opacity: 0.05 + whisperGlowActive + safeBassAmplitude * 0.1,
+                    scale: 1 + safeBassAmplitude * 0.05,
                   }
             }
             transition={
