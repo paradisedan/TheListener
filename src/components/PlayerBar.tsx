@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState, useRef } from 'react';
+import { Play, Pause } from 'lucide-react';
 
 export interface TrackVersion {
   version: number;
@@ -14,6 +15,8 @@ interface PlayerBarProps {
   versions?: TrackVersion[];
   currentVersion?: number;
   onVersionChange?: (version: TrackVersion) => void;
+  isPlaying?: boolean;
+  onTogglePlay?: () => void;
 }
 
 export function PlayerBar({ 
@@ -22,7 +25,9 @@ export function PlayerBar({
   onForceEmergence,
   versions = [],
   currentVersion,
-  onVersionChange 
+  onVersionChange,
+  isPlaying = false,
+  onTogglePlay
 }: PlayerBarProps) {
   const [prevMinute, setPrevMinute] = useState('');
   const [isMinuteChange, setIsMinuteChange] = useState(false);
@@ -66,19 +71,37 @@ export function PlayerBar({
       className="fixed top-0 left-0 right-0 z-50 pt-4 px-4 md:pt-8 md:px-8"
     >
       <div className="container mx-auto flex items-center justify-between">
-        <div ref={versionRef} className="relative">
-          <motion.button
-            onClick={() => hasVersions && setIsVersionOpen(!isVersionOpen)}
-            className={`font-mono text-[10px] md:text-xs tracking-wider flex items-center gap-2 ${hasVersions ? 'cursor-pointer hover:opacity-70' : ''}`}
-            animate={{ opacity: [0.3, 0.4, 0.3] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            disabled={!hasVersions}
-          >
-            <span>v{activeVersion}</span>
-            {activeTrack && (
-              <span className="opacity-50 italic">{activeTrack.name}</span>
-            )}
-          </motion.button>
+        <div className="flex items-center gap-4">
+          {/* Play/Pause button */}
+          {onTogglePlay && (
+            <motion.button
+              onClick={onTogglePlay}
+              className="text-white/40 hover:text-white/70 transition-colors duration-300 p-1"
+              aria-label={isPlaying ? 'Pause audio' : 'Play audio'}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {isPlaying ? (
+                <Pause className="w-4 h-4 md:w-5 md:h-5" />
+              ) : (
+                <Play className="w-4 h-4 md:w-5 md:h-5" />
+              )}
+            </motion.button>
+          )}
+
+          <div ref={versionRef} className="relative">
+            <motion.button
+              onClick={() => hasVersions && setIsVersionOpen(!isVersionOpen)}
+              className={`font-mono text-[10px] md:text-xs tracking-wider flex items-center gap-2 ${hasVersions ? 'cursor-pointer hover:opacity-70' : ''}`}
+              animate={{ opacity: [0.3, 0.4, 0.3] }}
+              transition={{ duration: 4, repeat: Infinity }}
+              disabled={!hasVersions}
+            >
+              <span>v{activeVersion}</span>
+              {activeTrack && (
+                <span className="opacity-50 italic">{activeTrack.name}</span>
+              )}
+            </motion.button>
 
           <AnimatePresence>
             {isVersionOpen && hasVersions && (
@@ -111,6 +134,7 @@ export function PlayerBar({
               </motion.div>
             )}
           </AnimatePresence>
+          </div>
         </div>
         
         <div className="flex flex-col items-end gap-1 md:gap-2">
