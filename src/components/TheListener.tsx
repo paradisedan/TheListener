@@ -178,6 +178,7 @@ export function TheListener({
             strokeWidth={state === 'rebirth' ? "8" : `${6 + bassAmplitude * 8}`}
             fill="none"
             strokeLinecap="round"
+            initial={{ opacity: 0.85 }}
             style={{
               filter: `drop-shadow(0 0 ${8 + bassGlow * 20}px hsl(168 95% 82% / ${0.3 + bassGlow}))`,
             }}
@@ -196,7 +197,7 @@ export function TheListener({
             transition={
               state === 'rebirth'
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
-                : { duration: 0.12, ease: 'easeOut' }
+                : { duration: 0.06, ease: 'easeOut' }
             }
           />
 
@@ -208,6 +209,7 @@ export function TheListener({
             strokeWidth={state === 'rebirth' ? "8" : `${6 + bassAmplitude * 8}`}
             fill="none"
             strokeLinecap="round"
+            initial={{ opacity: 0.85 }}
             style={{
               filter: `drop-shadow(0 0 ${8 + bassGlow * 20}px hsl(168 95% 82% / ${0.3 + bassGlow}))`,
             }}
@@ -226,7 +228,7 @@ export function TheListener({
             transition={
               state === 'rebirth'
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
-                : { duration: 0.12, ease: 'easeOut' }
+                : { duration: 0.06, ease: 'easeOut' }
             }
           />
 
@@ -239,6 +241,7 @@ export function TheListener({
             stroke={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
             strokeWidth={state === 'rebirth' ? "6" : `${5 + bassAmplitude * 3}`}
             fill="none"
+            initial={{ opacity: 0.6 }}
             style={{
               filter: state === 'rebirth' ? 'none' : `drop-shadow(0 0 ${4 + bassGlow * 10}px hsl(168 95% 82% / ${0.2 + bassGlow * 0.5}))`,
             }}
@@ -256,7 +259,7 @@ export function TheListener({
             transition={
               state === 'rebirth'
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
-                : { duration: 0.15, ease: 'easeOut' }
+                : { duration: 0.08, ease: 'easeOut' }
             }
           />
 
@@ -267,6 +270,7 @@ export function TheListener({
             rx="100"
             ry="120"
             fill={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
+            initial={{ opacity: 0.05 }}
             animate={
               state === 'rebirth'
                 ? {
@@ -280,7 +284,7 @@ export function TheListener({
             transition={
               state === 'rebirth'
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
-                : { duration: 0.15, ease: 'easeOut' }
+                : { duration: 0.08, ease: 'easeOut' }
             }
           />
 
@@ -291,6 +295,7 @@ export function TheListener({
             rx="160"
             ry="180"
             fill={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
+            initial={{ opacity: 0.03 }}
             animate={
               state === 'rebirth'
                 ? {
