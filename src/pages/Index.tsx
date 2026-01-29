@@ -46,9 +46,7 @@ const Index = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [audioEventGlow, setAudioEventGlow] = useState(0);
   const [rebirthTrigger, setRebirthTrigger] = useState(0);
-  const [hasInteracted, setHasInteracted] = useState(() => 
-    typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('hasInteracted') === 'true' : false
-  );
+  const [hasInteracted, setHasInteracted] = useState(false);
   const [currentTrackVersion, setCurrentTrackVersion] = useState<TrackVersion>(TRACK_VERSIONS[3]); // v4 default
   const countdownData = useCountdown();
   const countdown = countdownData.display;
@@ -198,9 +196,6 @@ const Index = () => {
   const handleAudioStart = async () => {
     setAudioNeedsStart(false);
     setHasInteracted(true);
-    if (typeof sessionStorage !== 'undefined') {
-      sessionStorage.setItem('hasInteracted', 'true');
-    }
     await audioController?.play();
     setIsPlaying(true);
   };
