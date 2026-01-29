@@ -35,6 +35,44 @@ export function ListenerFocusOverlay({
           >
             {/* Base dark layer */}
             <div className="absolute inset-0 bg-black" />
+
+            {/* KICK DRUM PULSE - central explosive glow */}
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ transform: 'translateY(12vh)' }}
+            >
+              <div
+                className="rounded-full"
+                style={{
+                  width: `${300 + bassAmplitude * 600}px`,
+                  height: `${300 + bassAmplitude * 600}px`,
+                  background: `radial-gradient(circle, hsl(168 95% 82% / ${0.15 + bassAmplitude * 0.4}) 0%, hsl(168 95% 82% / ${0.05 + bassAmplitude * 0.15}) 40%, transparent 70%)`,
+                  boxShadow: `
+                    0 0 ${60 + bassAmplitude * 200}px ${30 + bassAmplitude * 100}px hsl(168 95% 82% / ${0.1 + bassAmplitude * 0.3}),
+                    0 0 ${120 + bassAmplitude * 300}px ${60 + bassAmplitude * 150}px hsl(168 80% 70% / ${0.05 + bassAmplitude * 0.15}),
+                    inset 0 0 ${50 + bassAmplitude * 100}px hsl(168 95% 82% / ${0.1 + bassAmplitude * 0.2})
+                  `,
+                  transition: 'all 0.05s ease-out',
+                }}
+              />
+            </div>
+
+            {/* Secondary kick pulse ring - expands outward */}
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ transform: 'translateY(12vh)' }}
+            >
+              <div
+                className="rounded-full border-2"
+                style={{
+                  width: `${100 + bassAmplitude * 800}px`,
+                  height: `${100 + bassAmplitude * 800}px`,
+                  borderColor: `hsl(168 95% 82% / ${bassAmplitude * 0.3})`,
+                  boxShadow: `0 0 ${bassAmplitude * 60}px hsl(168 95% 82% / ${bassAmplitude * 0.2})`,
+                  transition: 'all 0.04s ease-out',
+                }}
+              />
+            </div>
             
             {/* Animated fractal-like gradient layers */}
             <motion.div
@@ -66,40 +104,32 @@ export function ListenerFocusOverlay({
 
             {/* Fractal-like rings - bass reactive */}
             {[...Array(5)].map((_, i) => (
-              <motion.div
+              <div
                 key={i}
                 className="absolute inset-0 flex items-center justify-center"
                 style={{ transform: 'translateY(12vh)' }}
               >
-                <motion.div
+                <div
                   className="rounded-full border border-primary/10"
                   style={{
-                    width: `${200 + i * 120 + bassAmplitude * 200}px`,
-                    height: `${200 + i * 120 + bassAmplitude * 200}px`,
-                    opacity: 0.04 + bassAmplitude * 0.15 - i * 0.006,
-                    boxShadow: `0 0 ${30 + bassAmplitude * 80}px hsl(168 95% 82% / ${0.04 + bassAmplitude * 0.12})`,
-                    transition: 'width 0.08s ease-out, height 0.08s ease-out, opacity 0.06s ease-out, box-shadow 0.08s ease-out',
-                  }}
-                  animate={{
-                    rotate: [0, i % 2 === 0 ? 8 : -8, 0],
-                  }}
-                  transition={{
-                    duration: 6 + i * 0.5,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
+                    width: `${200 + i * 120 + bassAmplitude * 250}px`,
+                    height: `${200 + i * 120 + bassAmplitude * 250}px`,
+                    opacity: 0.04 + bassAmplitude * 0.2 - i * 0.006,
+                    boxShadow: `0 0 ${30 + bassAmplitude * 100}px hsl(168 95% 82% / ${0.04 + bassAmplitude * 0.15})`,
+                    transition: 'all 0.06s ease-out',
                   }}
                 />
-              </motion.div>
+              </div>
             ))}
 
-            {/* Noise/grain texture overlay */}
-            <motion.div
-              className="absolute inset-0 opacity-[0.03]"
+            {/* Noise/grain texture overlay - intensifies with bass */}
+            <div
+              className="absolute inset-0"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                opacity: 0.02 + bassAmplitude * 0.06,
+                transition: 'opacity 0.1s ease-out',
               }}
-              animate={{ opacity: [0.02, 0.04, 0.02] }}
-              transition={{ duration: 3, repeat: Infinity }}
             />
 
             {/* Blur vignette edges */}
