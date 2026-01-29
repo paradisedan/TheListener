@@ -9,8 +9,6 @@ import { VersionDrawer } from '@/components/VersionDrawer';
 import { TheListener } from '@/components/TheListener';
 import { Colophon } from '@/components/Colophon';
 import { AudioStartOverlay } from '@/components/AudioStartOverlay';
-import { WaveformScrubber } from '@/components/WaveformScrubber';
-import { WaveformControls } from '@/components/WaveformControls';
 import { useKeyboardControls } from '@/hooks/useKeyboardControls';
 import { useCountdown } from '@/hooks/useCountdown';
 import { createAudioController, AudioController } from '@/lib/audio';
@@ -51,9 +49,7 @@ const Index = () => {
   const [hasInteracted, setHasInteracted] = useState(() => 
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('hasInteracted') === 'true' : false
   );
-  const [controlsVisible, setControlsVisible] = useState(false);
   const [currentTrackVersion, setCurrentTrackVersion] = useState<TrackVersion>(TRACK_VERSIONS[3]); // v4 default
-  const [versionFlash, setVersionFlash] = useState(0);
   const countdownData = useCountdown();
   const countdown = countdownData.display;
   const countdownMs = countdownData.remainingMs;
@@ -62,28 +58,20 @@ const Index = () => {
   // Handle idle state and listener state
   useEffect(() => {
     let idleTimer: NodeJS.Timeout;
-    let controlsTimer: NodeJS.Timeout;
 
     const resetIdle = () => {
       setIsIdle(false);
-      setControlsVisible(true);
       
       if (!isTyping) {
         setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'idle');
       }
       
       clearTimeout(idleTimer);
-      clearTimeout(controlsTimer);
       
       idleTimer = setTimeout(() => {
         setIsIdle(true);
         setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'dormant');
       }, 60000); // 60s for dormant
-
-      // Hide controls after 3s of inactivity
-      controlsTimer = setTimeout(() => {
-        setControlsVisible(false);
-      }, 3000);
     };
 
     window.addEventListener('mousemove', resetIdle);
@@ -96,13 +84,8 @@ const Index = () => {
       setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'dormant');
     }, 60000);
 
-    controlsTimer = setTimeout(() => {
-      setControlsVisible(false);
-    }, 3000);
-
     return () => {
       clearTimeout(idleTimer);
-      clearTimeout(controlsTimer);
       window.removeEventListener('mousemove', resetIdle);
       window.removeEventListener('keydown', resetIdle);
       window.removeEventListener('click', resetIdle);
@@ -254,7 +237,6 @@ const Index = () => {
   const handleVersionChange = async (trackVersion: TrackVersion) => {
     if (!audioController) return;
     setCurrentTrackVersion(trackVersion);
-    setVersionFlash(prev => prev + 1);
     await audioController.setSource(trackVersion.src);
   };
 
@@ -335,28 +317,6 @@ const Index = () => {
         }}
       />
       
-      {/* Interactive waveform visualization with scrubbing */}
-      <WaveformScrubber
-        audioController={audioController}
-        waveformAmplitudes={waveformAmplitudes}
-        isIdle={isIdle}
-        versionFlash={versionFlash}
-        onSeek={handleSeek}
-        onPlayToggle={handlePlayToggle}
-      />
-
-      {/* Waveform controls (play/pause, mute, volume) */}
-      {audioController && (
-        <WaveformControls
-          audioController={audioController}
-          isVisible={controlsVisible}
-          isPlaying={isPlaying}
-          isMuted={isMuted}
-          onTogglePlay={handlePlayToggle}
-          onToggleMute={handleMuteToggle}
-        />
-      )}
-
       {/* The Listener - living presence */}
       <div className="fixed inset-0 pointer-events-none blend-lighten" style={{ zIndex: 20 }}>
         <TheListener 
