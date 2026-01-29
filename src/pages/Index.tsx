@@ -53,23 +53,30 @@ const Index = () => {
   const countdownMs = countdownData.remainingMs;
   const currentVersion = mockVersions.length;
 
-  // Handle idle state and listener state
+  // Handle idle state tracking (but don't exit dormant on interaction)
   useEffect(() => {
     let idleTimer: NodeJS.Timeout;
 
     const resetIdle = () => {
-      setIsIdle(false);
-      
-      if (!isTyping) {
-        setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'idle');
+      // Only reset idle if not in dormant state
+      // Dormant is only exited when music plays
+      if (listenerState !== 'dormant') {
+        setIsIdle(false);
+        
+        if (!isTyping) {
+          setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'idle');
+        }
       }
       
       clearTimeout(idleTimer);
       
-      idleTimer = setTimeout(() => {
-        setIsIdle(true);
-        setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'dormant');
-      }, 60000); // 60s for dormant
+      // Only start idle timer if music is playing
+      if (isPlaying) {
+        idleTimer = setTimeout(() => {
+          setIsIdle(true);
+          setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'dormant');
+        }, 60000); // 60s for dormant
+      }
     };
 
     window.addEventListener('mousemove', resetIdle);
@@ -77,10 +84,13 @@ const Index = () => {
     window.addEventListener('click', resetIdle);
     window.addEventListener('touchstart', resetIdle);
 
-    idleTimer = setTimeout(() => {
-      setIsIdle(true);
-      setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'dormant');
-    }, 60000);
+    // Only start idle timer if music is playing
+    if (isPlaying) {
+      idleTimer = setTimeout(() => {
+        setIsIdle(true);
+        setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'dormant');
+      }, 60000);
+    }
 
     return () => {
       clearTimeout(idleTimer);
@@ -89,10 +99,13 @@ const Index = () => {
       window.removeEventListener('click', resetIdle);
       window.removeEventListener('touchstart', resetIdle);
     };
-  }, [isTyping]);
+  }, [isTyping, listenerState, isPlaying]);
 
-  // Update listener state based on focus and typing
+  // Update listener state based on focus and typing (but not if dormant)
   useEffect(() => {
+    // Don't change state if dormant - only music can wake us up
+    if (listenerState === 'dormant') return;
+    
     if (isTyping) {
       setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'typing');
     } else if (isFocused && !isIdle) {
@@ -100,7 +113,7 @@ const Index = () => {
     } else if (!isIdle) {
       setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'idle');
     }
-  }, [isTyping, isFocused, isIdle]);
+  }, [isTyping, isFocused, isIdle, listenerState]);
 
   const handleSubmit = () => {
     setListenerState('submitting');
