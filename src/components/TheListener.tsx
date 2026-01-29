@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface TheListenerProps {
   state: 'idle' | 'focused' | 'typing' | 'submitting' | 'rebirth' | 'dormant';
@@ -24,6 +24,18 @@ export function TheListener({
 }: TheListenerProps) {
   const [whisperGlowActive, setWhisperGlowActive] = useState(0);
   const [audioGlowActive, setAudioGlowActive] = useState(0);
+  const [isWakingUp, setIsWakingUp] = useState(false);
+  const prevStateRef = useRef(state);
+
+  // Handle wake-up transition from dormant
+  useEffect(() => {
+    if (prevStateRef.current === 'dormant' && state !== 'dormant') {
+      setIsWakingUp(true);
+      const timer = setTimeout(() => setIsWakingUp(false), 800);
+      return () => clearTimeout(timer);
+    }
+    prevStateRef.current = state;
+  }, [state]);
 
   // Handle whisper glow trigger
   useEffect(() => {
@@ -62,7 +74,13 @@ export function TheListener({
         className="fixed inset-0 flex items-center justify-center pointer-events-none"
         style={{ zIndex: 5 }}
         animate={
-          state === 'dormant'
+          isWakingUp
+            ? {
+                opacity: [0.15, 0.7, 0.5],
+                scale: [0.95, 1.08, 1],
+                filter: ['blur(20px)', 'blur(10px)', 'blur(14px)'],
+              }
+            : state === 'dormant'
             ? {
                 opacity: [baseOpacity * muteOpacity, (baseOpacity + 0.03) * muteOpacity, baseOpacity * muteOpacity],
                 scale: [dormantScale, dormantScale * 1.01, dormantScale],
@@ -106,12 +124,14 @@ export function TheListener({
             : {}
         }
         transition={
-          state === 'submitting'
+          isWakingUp
+            ? { duration: 0.8, ease: 'easeOut', times: [0, 0.4, 1] }
+            : state === 'submitting'
             ? { duration: 1.4, ease: 'easeInOut', times: [0, 0.3, 0.6, 1] }
             : state === 'rebirth'
             ? { duration: 4, ease: 'easeInOut', times: [0, 0.28, 0.55, 0.85, 1] }
             : state === 'dormant'
-            ? { duration: 20, ease: 'easeInOut', repeat: Infinity } // Very slow breathing when dormant
+            ? { duration: 20, ease: 'easeInOut', repeat: Infinity }
             : state === 'focused'
             ? { duration: 0.4, ease: 'easeOut' }
             : state === 'typing'
@@ -188,32 +208,37 @@ export function TheListener({
             }
           />
 
-          {/* Head outline */}
+          {/* Head outline - bass reactive */}
           <motion.ellipse
             cx="300"
             cy="450"
             rx="120"
             ry="140"
             stroke={state === 'rebirth' ? "hsl(168 100% 90%)" : "hsl(168 95% 82%)"}
-            strokeWidth={state === 'rebirth' ? "6" : "5"}
+            strokeWidth={state === 'rebirth' ? "6" : `${5 + bassAmplitude * 3}`}
             fill="none"
+            style={{
+              filter: state === 'rebirth' ? 'none' : `drop-shadow(0 0 ${4 + bassGlow * 10}px hsl(168 95% 82% / ${0.2 + bassGlow * 0.5}))`,
+            }}
             animate={
               state === 'rebirth'
                 ? {
                     opacity: [0, 0.8, 0.75, 0, 0.3],
+                    scale: 1,
                   }
                 : {
-                    opacity: 0.6,
+                    opacity: 0.6 + bassAmplitude * 0.3,
+                    scale: 1 + bassAmplitude * 0.08,
                   }
             }
             transition={
               state === 'rebirth'
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
-                : {}
+                : { duration: 0.15, ease: 'easeOut' }
             }
           />
 
-          {/* Inner glow */}
+          {/* Inner glow - bass reactive */}
           <motion.ellipse
             cx="300"
             cy="450"
@@ -226,13 +251,14 @@ export function TheListener({
                     opacity: [0, 0.5, 0.45, 0, 0.05],
                   }
                 : {
-                    opacity: 0.05 + whisperGlowActive,
+                    opacity: 0.05 + whisperGlowActive + bassAmplitude * 0.1,
+                    scale: 1 + bassAmplitude * 0.05,
                   }
             }
             transition={
               state === 'rebirth'
                 ? { duration: 4, ease: 'easeInOut', times: [0, 0.25, 0.5, 0.8, 1] }
-                : {}
+                : { duration: 0.15, ease: 'easeOut' }
             }
           />
 
