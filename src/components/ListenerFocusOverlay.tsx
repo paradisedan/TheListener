@@ -58,43 +58,6 @@ export function ListenerFocusOverlay({
                 }}
               />
             </div>
-
-            {/* Secondary kick pulse ring - expands outward */}
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{ transform: 'translateY(12vh)' }}
-            >
-              <div
-                className="rounded-full"
-                style={{
-                  width: `${150 + bassAmplitude * 1000}px`,
-                  height: `${150 + bassAmplitude * 1000}px`,
-                  border: `3px solid hsl(168 95% 82% / ${0.1 + bassAmplitude * 0.4})`,
-                  boxShadow: `
-                    0 0 ${20 + bassAmplitude * 80}px hsl(168 95% 82% / ${0.1 + bassAmplitude * 0.3}),
-                    inset 0 0 ${10 + bassAmplitude * 40}px hsl(168 95% 82% / ${0.05 + bassAmplitude * 0.15})
-                  `,
-                  transition: 'all 0.03s ease-out',
-                }}
-              />
-            </div>
-
-            {/* Tertiary outer ring - even more dramatic expansion */}
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{ transform: 'translateY(12vh)' }}
-            >
-              <div
-                className="rounded-full"
-                style={{
-                  width: `${80 + bassAmplitude * 1200}px`,
-                  height: `${80 + bassAmplitude * 1200}px`,
-                  border: `2px solid hsl(168 95% 82% / ${bassAmplitude * 0.25})`,
-                  boxShadow: `0 0 ${bassAmplitude * 100}px hsl(168 95% 82% / ${bassAmplitude * 0.15})`,
-                  transition: 'all 0.025s ease-out',
-                }}
-              />
-            </div>
             
             {/* Animated fractal-like gradient layers */}
             <motion.div
