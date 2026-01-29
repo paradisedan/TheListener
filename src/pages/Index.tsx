@@ -245,10 +245,13 @@ const Index = () => {
         setIsPlaying(true);
         // Ears glow +8% for 500ms
         setAudioEventGlow(prev => prev + 1);
+        // Wake up from dormant when music plays
+        setListenerState(prev => prev === 'dormant' ? 'idle' : prev);
       },
       onPause: () => {
         setIsPlaying(false);
-        setListenerState(prev => prev === 'typing' || prev === 'focused' || prev === 'rebirth' || prev === 'submitting' ? prev : 'idle');
+        // Enter dormant state when music pauses (unless in special states)
+        setListenerState(prev => prev === 'rebirth' || prev === 'submitting' ? prev : 'dormant');
       },
       onSeek: () => {
         // Brief 300ms ear pulse
