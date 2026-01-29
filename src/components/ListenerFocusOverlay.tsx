@@ -37,27 +37,6 @@ export function ListenerFocusOverlay({
           >
             {/* Base dark layer */}
             <div className="absolute inset-0 bg-black" />
-
-            {/* KICK DRUM PULSE - central explosive glow */}
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{ transform: 'translateY(12vh)' }}
-            >
-              <div
-                className="rounded-full"
-                style={{
-                  width: `${350 + bassAmplitude * 800}px`,
-                  height: `${350 + bassAmplitude * 800}px`,
-                  background: `radial-gradient(circle, hsl(168 95% 82% / ${0.2 + bassAmplitude * 0.5}) 0%, hsl(168 95% 82% / ${0.08 + bassAmplitude * 0.2}) 35%, transparent 65%)`,
-                  boxShadow: `
-                    0 0 ${80 + bassAmplitude * 300}px ${40 + bassAmplitude * 150}px hsl(168 95% 82% / ${0.15 + bassAmplitude * 0.4}),
-                    0 0 ${160 + bassAmplitude * 400}px ${80 + bassAmplitude * 200}px hsl(168 80% 70% / ${0.08 + bassAmplitude * 0.2}),
-                    inset 0 0 ${60 + bassAmplitude * 120}px hsl(168 95% 82% / ${0.15 + bassAmplitude * 0.25})
-                  `,
-                  transition: 'all 0.04s ease-out',
-                }}
-              />
-            </div>
             
             {/* Animated fractal-like gradient layers */}
             <motion.div
