@@ -73,28 +73,20 @@ export function ListenerFocusOverlay({
               >
                 <motion.div
                   className="rounded-full border border-primary/10"
+                  style={{
+                    width: `${200 + i * 120 + bassAmplitude * 200}px`,
+                    height: `${200 + i * 120 + bassAmplitude * 200}px`,
+                    opacity: 0.04 + bassAmplitude * 0.15 - i * 0.006,
+                    boxShadow: `0 0 ${30 + bassAmplitude * 80}px hsl(168 95% 82% / ${0.04 + bassAmplitude * 0.12})`,
+                    transition: 'width 0.08s ease-out, height 0.08s ease-out, opacity 0.06s ease-out, box-shadow 0.08s ease-out',
+                  }}
                   animate={{
-                    width: [
-                      `${200 + i * 120 + bassAmplitude * 100}px`,
-                      `${220 + i * 120 + bassAmplitude * 120}px`,
-                      `${200 + i * 120 + bassAmplitude * 100}px`,
-                    ],
-                    height: [
-                      `${200 + i * 120 + bassAmplitude * 100}px`,
-                      `${220 + i * 120 + bassAmplitude * 120}px`,
-                      `${200 + i * 120 + bassAmplitude * 100}px`,
-                    ],
-                    opacity: [0.05 - i * 0.008, 0.1 - i * 0.015, 0.05 - i * 0.008],
-                    rotate: [0, i % 2 === 0 ? 15 : -15, 0],
+                    rotate: [0, i % 2 === 0 ? 8 : -8, 0],
                   }}
                   transition={{
-                    duration: 4 + i * 0.5,
+                    duration: 6 + i * 0.5,
                     repeat: Infinity,
                     ease: 'easeInOut',
-                    delay: i * 0.2,
-                  }}
-                  style={{
-                    boxShadow: `0 0 ${30 + bassAmplitude * 50}px hsl(168 95% 82% / ${0.03 + bassAmplitude * 0.05})`,
                   }}
                 />
               </motion.div>
