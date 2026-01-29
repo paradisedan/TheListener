@@ -347,6 +347,8 @@ const Index = () => {
         versions={TRACK_VERSIONS}
         currentVersion={currentTrackVersion.version}
         onVersionChange={handleVersionChange}
+        isPlaying={isPlaying}
+        onTogglePlay={handlePlayToggle}
       />
       
       <motion.div
