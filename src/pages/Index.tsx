@@ -9,6 +9,8 @@ import { VersionDrawer } from '@/components/VersionDrawer';
 import { TheListener } from '@/components/TheListener';
 import { Colophon } from '@/components/Colophon';
 import { AudioStartOverlay } from '@/components/AudioStartOverlay';
+import { ListenerFocusButton } from '@/components/ListenerFocusButton';
+import { ListenerFocusOverlay } from '@/components/ListenerFocusOverlay';
 import { useKeyboardControls } from '@/hooks/useKeyboardControls';
 import { useCountdown } from '@/hooks/useCountdown';
 import { createAudioController, AudioController } from '@/lib/audio';
@@ -48,6 +50,7 @@ const Index = () => {
   const [rebirthTrigger, setRebirthTrigger] = useState(0);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [currentTrackVersion, setCurrentTrackVersion] = useState<TrackVersion>(TRACK_VERSIONS[3]); // v4 default
+  const [listenerFocusMode, setListenerFocusMode] = useState(false);
   const countdownData = useCountdown();
   const countdown = countdownData.display;
   const countdownMs = countdownData.remainingMs;
@@ -298,103 +301,128 @@ const Index = () => {
         {audioNeedsStart && !hasInteracted && <AudioStartOverlay onStart={handleAudioStart} />}
       </AnimatePresence>
 
-      {/* Idle darken overlay */}
-      <motion.div 
-        className="fixed inset-0 bg-black pointer-events-none"
-        style={{ zIndex: 15 }}
-        animate={{
-          opacity: listenerState === 'rebirth' ? 0 : (isIdle ? 0.5 : 0),
-        }}
-        transition={{ duration: listenerState === 'rebirth' ? 0.3 : 4 }}
-      />
-      
-      {/* Central glow */}
-      <motion.div 
-        className="fixed inset-0 glow-center breath pointer-events-none blend-screen"
-        style={{ zIndex: 5 }}
-        animate={{
-          opacity: isIdle ? 0.8 : 0.4,
-        }}
-        transition={{ duration: 3 }}
+      {/* Listener Focus Mode Overlay */}
+      <ListenerFocusOverlay
+        isActive={listenerFocusMode}
+        onClose={() => setListenerFocusMode(false)}
+        listenerState={listenerState}
+        waveformAmplitudes={waveformAmplitudes}
+        bassAmplitude={bassAmplitude}
+        audioPlaying={isPlaying}
+        audioMuted={isMuted}
       />
 
-      {/* Subtle radial vignette */}
-      <div 
-        className="fixed inset-0 pointer-events-none"
-        style={{ 
-          zIndex: 8,
-          background: 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.12) 100%)',
-          opacity: 0.15
-        }}
-      />
-      
-      {/* The Listener - living presence */}
-      <div className="fixed inset-0 pointer-events-none blend-lighten" style={{ zIndex: 20 }}>
-        <TheListener 
-          state={listenerState} 
-          waveformAmplitudes={waveformAmplitudes}
-          bassAmplitude={bassAmplitude}
-          keystrokePulse={keystrokePulse}
-          whisperGlow={whisperTrigger}
-          audioPlaying={isPlaying}
-          audioMuted={isMuted}
-          audioEventGlow={audioEventGlow}
-        />
-      </div>
-
-      {/* Ambient Whispers Layer */}
-      <Whispers
-        comments={comments}
-        countdownMs={countdownMs}
-        isIdle={isIdle}
-        onWhisperAppear={handleWhisperAppear}
-        forceRebirthMessage={rebirthTrigger}
-      />
-
-      <PlayerBar 
-        version={currentVersion} 
-        countdown={countdown} 
-        onForceEmergence={handleForceEmergence}
-        versions={TRACK_VERSIONS}
-        currentVersion={currentTrackVersion.version}
-        onVersionChange={handleVersionChange}
-        isPlaying={isPlaying}
-        onTogglePlay={handlePlayToggle}
-      />
-      
+      {/* Main content - fades when focus mode active */}
       <motion.div
-        className="pointer-events-auto"
-        style={{ zIndex: 40 }}
-        animate={{
-          opacity: isIdle ? 0.7 : 1,
-        }}
-        transition={{ duration: 2 }}
+        animate={{ opacity: listenerFocusMode ? 0 : 1 }}
+        transition={{ duration: 0.8 }}
+        className="contents"
+        style={{ pointerEvents: listenerFocusMode ? 'none' : 'auto' }}
       >
-        <PromptSection 
-          onTyping={setIsTyping}
-          onSubmit={handleSubmit}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onKeystroke={handleKeystroke}
+        {/* Idle darken overlay */}
+        <motion.div 
+          className="fixed inset-0 bg-black pointer-events-none"
+          style={{ zIndex: 15 }}
+          animate={{
+            opacity: listenerState === 'rebirth' ? 0 : (isIdle ? 0.5 : 0),
+          }}
+          transition={{ duration: listenerState === 'rebirth' ? 0.3 : 4 }}
         />
+        
+        {/* Central glow */}
+        <motion.div 
+          className="fixed inset-0 glow-center breath pointer-events-none blend-screen"
+          style={{ zIndex: 5 }}
+          animate={{
+            opacity: isIdle ? 0.8 : 0.4,
+          }}
+          transition={{ duration: 3 }}
+        />
+
+        {/* Subtle radial vignette */}
+        <div 
+          className="fixed inset-0 pointer-events-none"
+          style={{ 
+            zIndex: 8,
+            background: 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.12) 100%)',
+            opacity: 0.15
+          }}
+        />
+        
+        {/* The Listener - living presence */}
+        <div className="fixed inset-0 pointer-events-none blend-lighten" style={{ zIndex: 20 }}>
+          <TheListener 
+            state={listenerState} 
+            waveformAmplitudes={waveformAmplitudes}
+            bassAmplitude={bassAmplitude}
+            keystrokePulse={keystrokePulse}
+            whisperGlow={whisperTrigger}
+            audioPlaying={isPlaying}
+            audioMuted={isMuted}
+            audioEventGlow={audioEventGlow}
+          />
+        </div>
+
+        {/* Ambient Whispers Layer */}
+        <Whispers
+          comments={comments}
+          countdownMs={countdownMs}
+          isIdle={isIdle}
+          onWhisperAppear={handleWhisperAppear}
+          forceRebirthMessage={rebirthTrigger}
+        />
+
+        <PlayerBar 
+          version={currentVersion} 
+          countdown={countdown} 
+          onForceEmergence={handleForceEmergence}
+          versions={TRACK_VERSIONS}
+          currentVersion={currentTrackVersion.version}
+          onVersionChange={handleVersionChange}
+          isPlaying={isPlaying}
+          onTogglePlay={handlePlayToggle}
+        />
+        
+        <motion.div
+          className="pointer-events-auto"
+          style={{ zIndex: 40 }}
+          animate={{
+            opacity: isIdle ? 0.7 : 1,
+          }}
+          transition={{ duration: 2 }}
+        >
+          <PromptSection 
+            onTyping={setIsTyping}
+            onSubmit={handleSubmit}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onKeystroke={handleKeystroke}
+          />
+        </motion.div>
+
+        <div style={{ zIndex: 40 }}>
+          <AIDirectionPanel comments={comments} countdownMs={countdownMs} />
+        </div>
+        
+        <MixHistory
+          versions={mockVersions}
+          onVersionClick={handleVersionClick}
+        />
+        
+        <VersionDrawer
+          version={selectedVersion}
+          isOpen={selectedVersion !== null}
+          onClose={() => setSelectedVersion(null)}
+        />
+
+        <Colophon />
       </motion.div>
 
-      <div style={{ zIndex: 40 }}>
-        <AIDirectionPanel comments={comments} countdownMs={countdownMs} />
-      </div>
-      
-      <MixHistory
-        versions={mockVersions}
-        onVersionClick={handleVersionClick}
+      {/* Focus mode button */}
+      <ListenerFocusButton
+        onClick={() => setListenerFocusMode(true)}
+        isVisible={!listenerFocusMode && !audioNeedsStart}
       />
-      
-      <VersionDrawer
-        version={selectedVersion}
-        isOpen={selectedVersion !== null}
-        onClose={() => setSelectedVersion(null)}
-      />
-
-      <Colophon />
     </div>
   );
 };
